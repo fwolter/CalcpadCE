@@ -51,15 +51,7 @@ namespace Calcpad.Server.Services
                     }
                 };
                 
-                // Configure auth settings for #fetch if provided
-                if (settings?.Auth != null && !string.IsNullOrEmpty(settings.Auth.Url) && !string.IsNullOrEmpty(settings.Auth.JWT))
-                {
-                    macroParser.AuthSettings = new Calcpad.Core.AuthSettings
-                    {
-                        Url = settings.Auth.Url,
-                        JWT = settings.Auth.JWT
-                    };
-                }
+                // TODO: AuthSettings support not yet available in Calcpad.Core MacroParser
                 
                 string outputText;
                 var hasMacroErrors = macroParser.Parse(calcpadContent, out outputText, null, 0, true);
