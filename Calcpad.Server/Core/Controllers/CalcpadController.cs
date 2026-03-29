@@ -42,7 +42,9 @@ namespace Calcpad.Server.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error processing Calcpad content: {ex.Message}");
+                return StatusCode(500, CalcpadApiService.IsPublicMode
+                    ? "An internal error occurred while processing the request."
+                    : $"Error processing Calcpad content: {ex.Message}");
             }
         }
 
@@ -56,7 +58,9 @@ namespace Calcpad.Server.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"PDF generation failed: {ex.Message}");
+                return StatusCode(500, CalcpadApiService.IsPublicMode
+                    ? "An internal error occurred during PDF generation."
+                    : $"PDF generation failed: {ex.Message}");
             }
         }
 
@@ -102,7 +106,9 @@ namespace Calcpad.Server.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error processing Calcpad content: {ex.Message}");
+                return StatusCode(500, CalcpadApiService.IsPublicMode
+                    ? "An internal error occurred while processing the request."
+                    : $"Error processing Calcpad content: {ex.Message}");
             }
         }
 
