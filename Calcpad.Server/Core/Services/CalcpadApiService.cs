@@ -10,6 +10,15 @@ namespace Calcpad.Server.Services
     public static class CalcpadApiService
     {
         /// <summary>
+        /// When true, strict security restrictions are applied (public Docker server).
+        /// When false (default), the server runs in permissive local mode (Windows tray app).
+        /// Controlled by the CALCPAD_PUBLIC_MODE environment variable.
+        /// </summary>
+        public static bool IsPublicMode { get; } =
+            string.Equals(Environment.GetEnvironmentVariable("CALCPAD_PUBLIC_MODE"), "true", StringComparison.OrdinalIgnoreCase)
+            || Environment.GetEnvironmentVariable("CALCPAD_PUBLIC_MODE") == "1";
+
+        /// <summary>
         /// Configure the web application builder with all necessary services
         /// </summary>
         public static WebApplicationBuilder ConfigureBuilder(string[] args)
@@ -53,6 +62,9 @@ namespace Calcpad.Server.Services
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
             app.MapControllers();
+
+            var mode = IsPublicMode ? "PUBLIC" : "LOCAL";
+            Console.WriteLine($"Calcpad server starting in {mode} mode");
 
             return app;
         }

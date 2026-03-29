@@ -32,27 +32,33 @@ namespace Calcpad.Server.Services
                 // 2. Parse macros and includes (following WPF pattern)
                 var macroParser = new MacroParser();
                 
-                // Set up the Include function for #include directives
-                macroParser.Include = (fileName, fields) =>
+                if (CalcpadApiService.IsPublicMode)
                 {
-                    try
+                    // #include is disabled in public mode to prevent path traversal attacks.
+                    macroParser.Include = (fileName, fields) =>
                     {
-                        if (!File.Exists(fileName))
-                            return $"' File not found: {fileName}";
-                        
-                        // Simply read and return the file content
-                        // Note: fields parameter is required by Calcpad.Core but not used in Server
-                        return File.ReadAllText(fileName);
-                    }
-                    catch (Exception ex)
+                        FileLogger.LogWarning("Blocked #include directive in public mode", fileName);
+                        return "' #include is not supported in public mode";
+                    };
+                }
+                else
+                {
+                    // Local mode: allow #include with default file-reading behavior
+                    macroParser.Include = (fileName, fields) =>
                     {
-                        FileLogger.LogError($"Error reading include file: {fileName}", ex);
-                        return $"' Error reading file: {fileName} - {ex.Message}";
-                    }
-                };
-                
-                // TODO: AuthSettings support not yet available in Calcpad.Core MacroParser
-                
+                        try
+                        {
+                            if (!File.Exists(fileName))
+                                return $"' File not found: {fileName}";
+                            return File.ReadAllText(fileName);
+                        }
+                        catch (Exception ex)
+                        {
+                            FileLogger.LogError($"Error reading include file: {fileName}", ex);
+                            return $"' Error reading file: {fileName} - {ex.Message}";
+                        }
+                    };
+                }
                 string outputText;
                 var hasMacroErrors = macroParser.Parse(calcpadContent, out outputText, null, 0, true);
                 
