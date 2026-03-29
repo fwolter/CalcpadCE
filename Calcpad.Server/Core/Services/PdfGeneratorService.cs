@@ -254,15 +254,12 @@ namespace Calcpad.Server.Services
                 "--hide-scrollbars",
                 "--disable-crash-reporter",
                 "--no-crash-upload",
-                "--disable-crashpad-for-testing"
+                "--disable-crashpad-for-testing",
+                "--disable-remote-fonts",
+                "--disable-background-networking",
+                "--disable-sync",
+                "--disable-translate"
             };
-
-            // Minimal platform-specific args - only essential ones
-            if (isLinux || isWSL)
-            {
-                // Single process mode for better Docker compatibility
-                baseArgs.Add("--single-process");
-            }
 
             return baseArgs.Distinct().ToArray(); // Remove duplicates
         }
