@@ -1,5 +1,6 @@
 using Calcpad.Core;
 using Calcpad.Server.Controllers;
+using System.Text.RegularExpressions;
 
 namespace Calcpad.Server.Services
 {
@@ -472,12 +473,37 @@ tan_angle = tan(angle°)";
 </html>";
         }
 
+        private static readonly string CspMetaTag =
+            "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:;\">";
+
         private string WrapHtmlResult(string htmlContent, string theme = "light")
         {
+            // Sanitize dangerous HTML tags from Calcpad output before wrapping
+            htmlContent = SanitizeHtml(htmlContent);
+
             // Use the comprehensive HTML template with theme support
             var themeClass = theme.ToLower() == "dark" ? " class=\"dark-theme\"" : "";
             var templateWithTheme = _htmlTemplate.Replace("<body>", $"<body{themeClass}>");
+            // Inject Content-Security-Policy to block inline scripts and external resources
+            templateWithTheme = templateWithTheme.Replace("<head>", $"<head>\n    {CspMetaTag}");
             return templateWithTheme.Replace("{{CONTENT}}", htmlContent);
+        }
+
+        private static readonly Regex DangerousTagsRegex = new(
+            @"<\s*/?\s*(script|iframe|object|embed|form|base|link|meta|applet|svg\s+[^>]*on\w+)[^>]*>",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly Regex EventHandlerRegex = new(
+            @"\s+on\w+\s*=\s*[""'][^""']*[""']",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static string SanitizeHtml(string html)
+        {
+            // Strip dangerous tags: script, iframe, object, embed, form, base, link, meta, applet
+            html = DangerousTagsRegex.Replace(html, string.Empty);
+            // Strip event handler attributes (onclick, onerror, etc.)
+            html = EventHandlerRegex.Replace(html, string.Empty);
+            return html;
         }
 
         private static void TryDeleteFile(string filePath)
