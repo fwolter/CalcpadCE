@@ -74,10 +74,26 @@ namespace Calcpad.Server.Services
                 {
                     try
                     {
-                        // 3. Parse expressions and calculate (following WPF pattern)
+                        // 3. Parse expressions and calculate with a wall-clock timeout
+                        var timeoutSeconds = CalcpadApiService.IsPublicMode ? 15 : 300;
                         var parser = new ExpressionParser { Settings = coreSettings };
-                        parser.Parse(outputText, true, false); // calculate = true, getXml = false for HTML
+                        var parseTask = Task.Run(() =>
+                        {
+                            parser.Parse(outputText, true, false);
+                        });
+                        if (!parseTask.Wait(TimeSpan.FromSeconds(timeoutSeconds)))
+                        {
+                            parser.Cancel();
+                            FileLogger.LogWarning($"Computation timeout after {timeoutSeconds} seconds");
+                            throw new TimeoutException($"Computation exceeded the maximum allowed time of {timeoutSeconds} seconds.");
+                        }
+                        // Re-throw any exception from the parse task
+                        parseTask.GetAwaiter().GetResult();
                         htmlResult = parser.HtmlResult;
+                    }
+                    catch (TimeoutException)
+                    {
+                        throw;
                     }
                     catch (Exception parseEx)
                     {
