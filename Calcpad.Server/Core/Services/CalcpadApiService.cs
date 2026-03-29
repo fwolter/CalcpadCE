@@ -41,14 +41,25 @@ namespace Calcpad.Server.Services
             builder.Services.AddScoped<CalcpadService>();
             builder.Services.AddScoped<PdfGeneratorService>();
 
-            // Add CORS policy
+            // Add CORS policy — restricted in public mode, open locally
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
+                    if (IsPublicMode)
+                    {
+                        var corsOrigins = Environment.GetEnvironmentVariable("CALCPAD_CORS_ORIGINS")
+                            ?? "https://calcpad-ce.org";
+                        policy.WithOrigins(corsOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                              .AllowAnyMethod()
+                              .AllowAnyHeader();
+                    }
+                    else
+                    {
+                        policy.AllowAnyOrigin()
+                              .AllowAnyMethod()
+                              .AllowAnyHeader();
+                    }
                 });
             });
 
