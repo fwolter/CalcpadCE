@@ -99,8 +99,8 @@ namespace Calcpad.Server.Services
         /// </summary>
         public static WebApplication ConfigureApp(WebApplication app)
         {
-            // Configure the HTTP request pipeline
-            if (app.Environment.IsDevelopment())
+            // Expose Swagger only in local mode (not on the public server)
+            if (!IsPublicMode)
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
