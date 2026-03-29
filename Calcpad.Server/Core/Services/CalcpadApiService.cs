@@ -27,6 +27,12 @@ namespace Calcpad.Server.Services
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Limit request body size: 512 KB in public mode, 50 MB locally
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = IsPublicMode ? 512_000 : 50_000_000;
+            });
+
             // Add services to the container
             builder.Services.AddControllers()
                 .AddApplicationPart(typeof(CalcpadApiService).Assembly); // Discover controllers from Core assembly
