@@ -73,10 +73,14 @@ namespace Calcpad.Server.Services
                 using var page = await browser.NewPageAsync();
                 _logger.LogDebug("New page created successfully");
 
-                // Set content and wait for it to load
-                await page.SetContentAsync(htmlContent, new NavigationOptions
+                // Inject Content-Security-Policy to block all external resource loading (SSRF prevention)
+                const string pdfCsp = "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:;\">";
+                var safeHtml = htmlContent.Replace("<head>", $"<head>\n{pdfCsp}");
+
+                // Set content and wait for DOM to be ready (not Networkidle0, which waits for external fetches)
+                await page.SetContentAsync(safeHtml, new NavigationOptions
                 {
-                    WaitUntil = new[] { WaitUntilNavigation.Networkidle0 }
+                    WaitUntil = new[] { WaitUntilNavigation.DOMContentLoaded }
                 });
 
                 // Configure PDF options
