@@ -107,6 +107,17 @@ namespace Calcpad.Server.Services
             }
 
             app.UseHttpsRedirection();
+
+            // Security headers
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+                context.Response.Headers["X-Frame-Options"] = "DENY";
+                context.Response.Headers["Cache-Control"] = "no-store";
+                context.Response.Headers["Referrer-Policy"] = "no-referrer";
+                await next();
+            });
+
             app.UseCors("AllowAll");
             app.UseRateLimiter();
             app.MapControllers();
