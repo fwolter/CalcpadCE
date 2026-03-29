@@ -28,6 +28,9 @@ namespace Calcpad.Server.Controllers
                     return BadRequest("Content is required");
                 }
 
+                var validationError = ValidateSettings(request);
+                if (validationError != null) return BadRequest(validationError);
+
                 // Get HTML result first
                 var htmlResult = await _calcpadService.ConvertAsync(request.Content, request.Settings, request.ForceUnwrappedCode, request.Theme);
                 
@@ -101,6 +104,9 @@ namespace Calcpad.Server.Controllers
                     return BadRequest("Content is required");
                 }
 
+                var validationError = ValidateSettings(request);
+                if (validationError != null) return BadRequest(validationError);
+
                 var result = await _calcpadService.ConvertAsync(request.Content, request.Settings, forceUnwrappedCode: true, request.Theme);
                 return Content(result, "text/html");
             }
@@ -118,6 +124,35 @@ namespace Calcpad.Server.Controllers
         {
             var sampleContent = _calcpadService.GetSampleContent();
             return Ok(new CalcpadRequest { Content = sampleContent });
+        }
+
+        private static string? ValidateSettings(CalcpadRequest request)
+        {
+            if (request.Settings?.Math != null)
+            {
+                var m = request.Settings.Math;
+                if (m.Decimals is < 0 or > 15) return "Decimals must be between 0 and 15.";
+                if (m.Degrees is not null and not (0 or 1)) return "Degrees must be 0 or 1.";
+            }
+            if (request.Settings?.Plot != null)
+            {
+                var p = request.Settings.Plot;
+                if (p.ScreenScaleFactor is < 0.1 or > 10) return "ScreenScaleFactor must be between 0.1 and 10.";
+                if (p.ImagePath?.Length > 200) return "ImagePath is too long.";
+                if (p.ImageUri?.Length > 500) return "ImageUri is too long.";
+            }
+            if (request.PdfSettings != null)
+            {
+                var pdf = request.PdfSettings;
+                if (pdf.Scale is < 0.1 or > 3.0) return "PDF scale must be between 0.1 and 3.0.";
+                if (pdf.DocumentTitle?.Length > 200) return "DocumentTitle is too long.";
+                if (pdf.DocumentSubtitle?.Length > 200) return "DocumentSubtitle is too long.";
+                if (pdf.Author?.Length > 100) return "Author is too long.";
+                if (pdf.Company?.Length > 100) return "Company is too long.";
+                if (pdf.Project?.Length > 100) return "Project is too long.";
+            }
+            if (request.Theme is not ("light" or "dark")) return "Theme must be 'light' or 'dark'.";
+            return null;
         }
     }
 
