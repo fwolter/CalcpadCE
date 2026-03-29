@@ -1,5 +1,6 @@
 using Calcpad.Server.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Calcpad.Server.Controllers
 {
@@ -17,6 +18,7 @@ namespace Calcpad.Server.Controllers
         }
 
         [HttpPost("convert")]
+        [EnableRateLimiting("convert")]
         public async Task<IActionResult> ConvertToHtml([FromBody] CalcpadRequest request)
         {
             try
@@ -85,6 +87,7 @@ namespace Calcpad.Server.Controllers
         }
 
         [HttpPost("convert-unwrapped")]
+        [EnableRateLimiting("convert")]
         public async Task<IActionResult> ConvertToUnwrappedHtml([FromBody] CalcpadRequest request)
         {
             try
@@ -104,6 +107,7 @@ namespace Calcpad.Server.Controllers
         }
 
         [HttpGet("sample")]
+        [EnableRateLimiting("general")]
         public IActionResult GetSample()
         {
             var sampleContent = _calcpadService.GetSampleContent();

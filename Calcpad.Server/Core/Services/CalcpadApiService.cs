@@ -1,5 +1,7 @@
 using Calcpad.Server.Services;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading.RateLimiting;
 
 namespace Calcpad.Server.Services
 {
@@ -44,6 +46,34 @@ namespace Calcpad.Server.Services
                 });
             });
 
+            // Rate limiting — strict in public mode, effectively unlimited locally
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                var convertLimit = IsPublicMode ? 20 : int.MaxValue;
+                var pdfLimit = IsPublicMode ? 5 : int.MaxValue;
+                var generalLimit = IsPublicMode ? 100 : int.MaxValue;
+
+                options.AddFixedWindowLimiter("convert", opt =>
+                {
+                    opt.PermitLimit = convertLimit;
+                    opt.Window = TimeSpan.FromMinutes(1);
+                    opt.QueueLimit = 0;
+                });
+                options.AddFixedWindowLimiter("pdf", opt =>
+                {
+                    opt.PermitLimit = pdfLimit;
+                    opt.Window = TimeSpan.FromMinutes(1);
+                    opt.QueueLimit = 0;
+                });
+                options.AddFixedWindowLimiter("general", opt =>
+                {
+                    opt.PermitLimit = generalLimit;
+                    opt.Window = TimeSpan.FromMinutes(1);
+                    opt.QueueLimit = 0;
+                });
+            });
+
             return builder;
         }
 
@@ -61,6 +91,7 @@ namespace Calcpad.Server.Services
 
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
+            app.UseRateLimiter();
             app.MapControllers();
 
             var mode = IsPublicMode ? "PUBLIC" : "LOCAL";
