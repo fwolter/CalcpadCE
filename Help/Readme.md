@@ -1058,8 +1058,8 @@ Calcpad includes a library with common math functions, ready to use:
 > **vec2diag**($\vec{v}$) - creates a diagonal matrix from the elements of vector $\vec{v}$;  
 > **vec2row**($\vec{v}$) - creates a row matrix from the elements of vector $\vec{v}$;  
 > **vec2col**($\vec{v}$) - creates a column matrix from the elements of vector $\vec{v}$;  
-> **join_cols**($\vec{c}$1; $\vec{c}$2; $\vec{c}$3 ...) - creates a new matrix by joining column vectors;  
-> **join_rows**($\vec{r}$1; $\vec{r}$2; $\vec{r}$3 ...) - creates a new matrix by joining row vectors;
+> **join_cols**($\vec{c}_{1}$; $\vec{c}_{2}$; $\vec{c}_{3}$ ...) - creates a new matrix by joining column vectors;  
+> **join_rows**($\vec{r}_{1}$; $\vec{r}_{2}$; $\vec{r}_{3}$ ...) - creates a new matrix by joining row vectors;
 >
 > **augment**(*A*; *B*; *C* ...) - creates a new matrix by appending matrices *A*; *B*; *C* side by side;  
 > **stack**(*A*; *B*; *C* ...) - creates a new matrix by stacking matrices *A*; *B*; *C* one below the other;
@@ -1935,8 +1935,8 @@ You can access individual elements of a vector for reading and writing by using 
 
   *a* = \[2; 4; 6; 8; 10\]  
   *a*.2' = 4  
-  *k* = 3', '*a*.*k*' = $\vec{a}$3 = 6  
-  *a*.(2\**k* - 1)' = $\vec{a}$5 = 10
+  *k* = 3', '*a*.*k*' = $\vec{a}_{3}$ = 6  
+  *a*.(2\**k* - 1)' = $\vec{a}_{5}$ = 10
 
 If an index value is less than 1 or greater than the vector length **len**($\vec{a}$), the program will return an error: Index out of range. You can use indexing to initialize vectors inside loops (block or inline). For that purpose, you must include the loop counter into the index. For example:
 
@@ -2469,9 +2469,9 @@ This function is equivalent to **diagonal**(*n* ; 1).
 3
 \end{bmatrix}`$
 
-  **join_cols**($\vec{c}$1; $\vec{c}$2; $\vec{c}$3 ...)
+  **join_cols**($\vec{c}_{1}$; $\vec{c}_{2}$; $\vec{c}_{3}$ ...)
 
-    *Parameters*: $\vec{c}$1, $\vec{c}$2, $\vec{c}$3 ... - vectors.  
+    *Parameters*: $\vec{c}_{1}$, $\vec{c}_{2}$, $\vec{c}_{3}$ ... - vectors.  
     *Return value*: a new rectangular matrix, obtained by joining the column vectors.  
     *Notes*: You can specify arbitrary number of input vectors with different lengths. The number of rows is equal to the maximum vector length and the other columns are filled down with zeros to the end. The vectors are joined sequentially from left to right.  
     *Example*: **join_cols**(\[1\]; \[4; 5; 6\]; \[7; 8\]; \[10; 11; 12\]' = $`\begin{bmatrix}
@@ -2480,9 +2480,9 @@ This function is equivalent to **diagonal**(*n* ; 1).
 0 & 6 & 0 & 12
 \end{bmatrix}`$
 
-  **join_rows**($\vec{r}$1; $\vec{r}$2; $\vec{r}$3 ...)
+  **join_rows**($\vec{r}_{1}$; $\vec{r}_{2}$; $\vec{r}_{3}$ ...)
 
-    *Parameters*: $\vec{r}$1, $\vec{r}$2, $\vec{r}$3... - vectors.  
+    *Parameters*: $\vec{r}_{1}$, $\vec{r}_{2}$, $\vec{r}_{3}$... - vectors.  
     *Return value*: a new rectangular matrix, which rows are the specified vector arguments.  
     *Notes*: You can have an arbitrary number of input vectors with different lengths. The number of columns is equal to the maximum vector length. The other rows are filled up with zeros to the end. The vectors are collected from left to right and arranged into rows from top to bottom.  
     *Example*: **join_rows**(\[1; 2; 3; 4\]; \[6; 7; 8; 9; 10\]' = $`\begin{bmatrix}
