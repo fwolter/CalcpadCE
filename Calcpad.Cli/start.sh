@@ -1,2 +1,2 @@
 #!/bin/sh
-dotnet /usr/share/Calcpad/Calcpad.dll $1 $2 $3
+dotnet /usr/share/Calcpad/Cli.dll $1 $2 $3
