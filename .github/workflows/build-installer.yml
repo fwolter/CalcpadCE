@@ -80,6 +80,9 @@ jobs:
   build-deb:
     needs: determine-version
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rid: [linux-x64, linux-arm64]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -91,17 +94,17 @@ jobs:
 
       - name: Restore packages
         working-directory: Calcpad.Cli
-        run: dotnet restore Calcpad.Cli.csproj
+        run: dotnet restore Calcpad.Cli.csproj -r ${{ matrix.rid }}
 
       - name: Build .deb package
         working-directory: Calcpad.Cli
-        run: dotnet msbuild Calcpad.Cli.csproj -t:CreateDeb -p:Configuration=Release -p:Version=${{ needs.determine-version.outputs.version }} -p:PackagePrefix=CalcpadCE
+        run: dotnet msbuild Calcpad.Cli.csproj -t:CreateDeb -p:Configuration=Release -p:Version=${{ needs.determine-version.outputs.version }} -p:PackagePrefix=CalcpadCE -p:RuntimeIdentifier=${{ matrix.rid }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ needs.determine-version.outputs.deb_name }}
-          path: Calcpad.Cli/bin/Release/net10.0/*.deb
+          name: ${{ needs.determine-version.outputs.deb_name }}-${{ matrix.rid }}
+          path: Calcpad.Cli/bin/Release/net10.0/${{ matrix.rid }}/*.deb
 
   release:
     if: needs.determine-version.outputs.is_release == 'true'
@@ -116,11 +119,12 @@ jobs:
           name: ${{ needs.determine-version.outputs.installer_name }}
           path: artifacts/
 
-      - name: Download .deb package
+      - name: Download .deb packages
         uses: actions/download-artifact@v4
         with:
-          name: ${{ needs.determine-version.outputs.deb_name }}
+          pattern: ${{ needs.determine-version.outputs.deb_name }}-*
           path: artifacts/
+          merge-multiple: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

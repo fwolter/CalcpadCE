@@ -11,6 +11,8 @@
     <Product>Cli</Product>
     <AssemblyName>Cli</AssemblyName>
     <StartupObject>Calcpad.Cli.Program</StartupObject>
+    <SymlinkAppHostInBin>false</SymlinkAppHostInBin>
+    <SkipDebDependencies>true</SkipDebDependencies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -112,4 +114,5 @@
       ]]>
     </PostInstallScript>
   </PropertyGroup>
+
 </Project>
