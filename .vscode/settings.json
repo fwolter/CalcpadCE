@@ -1,0 +1,12 @@
+{
+    "[csharp]": {
+        "editor.formatOnSave": false,
+        "files.trimTrailingWhitespace": false
+    },
+    "[xml]": {
+        "files.trimFinalNewlines": false
+    },
+    "[markdown]": {
+        "editor.formatOnSave": false
+    }
+}
