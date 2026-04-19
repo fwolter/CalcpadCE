@@ -24,10 +24,10 @@ theme:
     - content.code.copy
 
 hooks:
-  - hooks/math_fix.py
+  - docs/hooks/math_fix.py
 
 nav:
-  - Home:
+  - Documentation:
     - index.md
     - Fields of Application: fields-of-application.md
     - Installation: installation.md
@@ -52,10 +52,14 @@ nav:
     - Vectors: vectors.md
     - Matrices: matrices.md
     - High Performance Vectors and Matrices: high-performance-vectors-and-matrices.md
+  - Quick Reference:
+    - quick-reference.md
 
 markdown_extensions:
   - tables
   - attr_list
+  - mdx_truly_sane_lists:
+      nested_indent: 2
   - md_in_html
   - def_list
   - admonition

@@ -42,7 +42,7 @@ Calcpad includes a library with common math functions, ready to use.
 | -------- | - |
 | `asinh(x)` | inverse hyperbolic sine = **ln**(*x* + √(*x*2 + 1)), defined for -∞ ≤ *x* ≤ +∞ |
 | `acosh(x)` | inverse hyperbolic cosine = **ln**(*x* + √(*x* + 1)·√(*x* – 1)), defined for *x* ≥ 1 |
-| `atanh(x)` | inverse hyperbolic tangent = 1/2·**ln**\[(1 + *x*)/(1 - *x*)\], for -1 \< *x* \< 1 |
+| `atanh(x)` | inverse hyperbolic tangent = 1/2·**ln**\[(1 + *x*)/(1 - *x*)\], for -1 < *x* < 1 |
 | `acsch(x)` | inverse hyperbolic cosecant = **atanh**(1/*x*) |
 | `asech(x)` | inverse hyperbolic secant = **acosh**(1/*x*) |
 | `acoth(x)` | inverse hyperbolic cotangent = 1/2·**ln**\[(*x* + 1)/(*x* - 1)\], for \|*x*\| \> 1 |
