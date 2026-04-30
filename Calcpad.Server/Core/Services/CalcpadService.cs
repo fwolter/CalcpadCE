@@ -36,6 +36,7 @@ namespace Calcpad.Server.Services
                 if (CalcpadApiService.IsPublicMode)
                 {
                     // #include is disabled in public mode to prevent path traversal attacks.
+                    calcpadContent = Regex.Replace(calcpadContent, @"(?m)^[ \t]*#(read|write|append)\b.*$", string.Empty);
                     macroParser.Include = (fileName, fields) =>
                     {
                         FileLogger.LogWarning("Blocked #include directive in public mode", fileName);
