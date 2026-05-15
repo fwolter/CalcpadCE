@@ -3,6 +3,11 @@ name: Build PR docs
 on:
   pull_request:
     types: [opened, reopened, synchronize]
+    paths:
+      - 'Examples/**/*.html.stub'
+      - 'docs/**'
+      - '**/*.md'
+      - 'mkdocs.yml'
 
 concurrency: preview-${{ github.ref }}
 
