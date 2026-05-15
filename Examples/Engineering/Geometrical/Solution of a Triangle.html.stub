@@ -1,0 +1,707 @@
+<div class="calcpad-output">
+ <!-- Recovers all six elements of a triangle from three given side lengths via the law of cosines, plus area and the three heights. -->
+ <h3>Solution of triangle, defined by three sides</h3>
+ <p>Lengths of sides:</p>
+ <p>
+  <span class="eq">
+   <var>a</var>
+   =
+   <u class="input-5">5</u>
+  </span>
+  ,
+  <span class="eq">
+   <var>b</var>
+   =
+   <u class="input-5">4</u>
+  </span>
+  ,
+  <span class="eq">
+   <var>c</var>
+   =
+   <u class="input-5">6</u>
+  </span>
+ </p>
+ <p>Perimeter</p>
+ <p>
+  <span class="eq">
+   <var>P</var>
+   =
+   <var>a</var>
+   +
+   <var>b</var>
+   +
+   <var>c</var>
+   = 5 + 4 + 6 = 15
+  </span>
+ </p>
+ <p>
+  Half-perimeter -
+  <span class="eq">
+   <var>p</var>
+   = 0.5 ·
+   <var>P</var>
+   = 0.5 · 15 = 7.5
+  </span>
+ </p>
+ <p>Area (Heron′s formula):</p>
+ <p>
+  <span class="eq">
+   <var>A</var>
+   =
+   <span class="o0">
+    <span class="r">√</span>
+    <var>p</var>
+    ·  (
+    <var>p</var>
+    −
+    <var>a</var>
+    )  ·  (
+    <var>p</var>
+    −
+    <var>b</var>
+    )  ·  (
+    <var>p</var>
+    −
+    <var>c</var>
+    )
+   </span>
+   =
+   <span class="o0">
+    <span class="r">√</span>
+    7.5 ·  ( 7.5 − 5 )  ·  ( 7.5 − 4 )  ·  ( 7.5 − 6 )
+   </span>
+   = 9.92
+  </span>
+ </p>
+ <p>Radius of inscribed circle:</p>
+ <p>
+  <span class="eq">
+   <var>r</var>
+   =
+   <span class="dvc">
+    <var>A</var>
+    <span class="dvl">
+    </span>
+    <var>p</var>
+   </span>
+   =
+   <span class="dvc">
+    9.92
+    <span class="dvl">
+    </span>
+    7.5
+   </span>
+   = 1.32
+  </span>
+ </p>
+ <p>Radius of escribed circle:</p>
+ <p>
+  <span class="eq">
+   <var>R</var>
+   =
+   <span class="dvc">
+    <var>a</var>
+    ·
+    <var>b</var>
+    ·
+    <var>c</var>
+    <span class="dvl">
+    </span>
+    4 ·
+    <var>A</var>
+   </span>
+   =
+   <span class="dvc">
+    5 · 4 · 6
+    <span class="dvl">
+    </span>
+    4 · 9.92
+   </span>
+   = 3.02
+  </span>
+ </p>
+ <p>Angles (Law of cosines):</p>
+ <p>
+  <span class="eq">
+   <var>α</var>
+   =
+   <b>acos</b>
+   <span class="b1">(</span>
+   <span class="dvc">
+    <var>b</var>
+    <sup>2</sup>
+    +
+    <var>c</var>
+    <sup>2</sup>
+    −
+    <var>a</var>
+    <sup>2</sup>
+    <span class="dvl">
+    </span>
+    2 ·
+    <var>b</var>
+    ·
+    <var>c</var>
+   </span>
+   <span class="b1">)</span>
+   =
+   <b>acos</b>
+   <span class="b1">(</span>
+   <span class="dvc">
+    4
+    <sup>2</sup>
+    + 6
+    <sup>2</sup>
+    − 5
+    <sup>2</sup>
+    <span class="dvl">
+    </span>
+    2 · 4 · 6
+   </span>
+   <span class="b1">)</span>
+   = 55.77
+  </span>
+  °
+ </p>
+ <p>
+  <span class="eq">
+   <var>β</var>
+   =
+   <b>acos</b>
+   <span class="b1">(</span>
+   <span class="dvc">
+    <var>c</var>
+    <sup>2</sup>
+    +
+    <var>a</var>
+    <sup>2</sup>
+    −
+    <var>b</var>
+    <sup>2</sup>
+    <span class="dvl">
+    </span>
+    2 ·
+    <var>c</var>
+    ·
+    <var>a</var>
+   </span>
+   <span class="b1">)</span>
+   =
+   <b>acos</b>
+   <span class="b1">(</span>
+   <span class="dvc">
+    6
+    <sup>2</sup>
+    + 5
+    <sup>2</sup>
+    − 4
+    <sup>2</sup>
+    <span class="dvl">
+    </span>
+    2 · 6 · 5
+   </span>
+   <span class="b1">)</span>
+   = 41.41
+  </span>
+  °
+ </p>
+ <p>
+  <span class="eq">
+   <var>γ</var>
+   =
+   <b>acos</b>
+   <span class="b1">(</span>
+   <span class="dvc">
+    <var>a</var>
+    <sup>2</sup>
+    +
+    <var>b</var>
+    <sup>2</sup>
+    −
+    <var>c</var>
+    <sup>2</sup>
+    <span class="dvl">
+    </span>
+    2 ·
+    <var>a</var>
+    ·
+    <var>b</var>
+   </span>
+   <span class="b1">)</span>
+   =
+   <b>acos</b>
+   <span class="b1">(</span>
+   <span class="dvc">
+    5
+    <sup>2</sup>
+    + 4
+    <sup>2</sup>
+    − 6
+    <sup>2</sup>
+    <span class="dvl">
+    </span>
+    2 · 5 · 4
+   </span>
+   <span class="b1">)</span>
+   = 82.82
+  </span>
+  °
+ </p>
+ <p>
+  Type of triangle: acute,
+  <!-- -->
+  scalene.
+ </p>
+ <svg style="font-size: 18px; width: 220pt; height: 130.24pt" version="1.1" viewbox="-20 -20 440 260.48" xmlns="http://www.w3.org/2000/svg">
+  <path d="M40 220.48 A 40 40 0 0 0 22.5 187.41" style="stroke:goldenrod; stroke-width:1; fill: none">
+  </path>
+  <path d="M360 220.48 A 40 40 0 0 1 370 194.02" style="stroke:goldenrod; stroke-width:1; fill: none">
+  </path>
+  <path d="M180 26.46 A 40 40 0 0 1 127.5 33.07" style="stroke:goldenrod; stroke-width:1; fill: none">
+  </path>
+  <polyline points="0,220.48 400,220.48 150,0 0,220.48" style="stroke:black; stroke-width:2; fill:yellow; fill-opacity:0.2">
+  </polyline>
+  <circle cx="0" cy="220.48" r="4" style="fill:red">
+  </circle>
+  <circle cx="400" cy="220.48" r="4" style="fill:red">
+  </circle>
+  <circle cx="150" cy="0" r="4" style="fill:red">
+  </circle>
+  <text text-anchor="end" x="0" y="240.48">A</text>
+  <text x="400" y="240.48">B</text>
+  <text x="150" y="-5">C</text>
+  <text text-anchor="middle" x="200" y="240.48">6</text>
+  <text text-anchor="start" x="280" y="100.24">5</text>
+  <text text-anchor="end" x="70" y="100.24">4</text>
+  <text x="50" y="210.48">55.77°</text>
+  <text text-anchor="end" x="350" y="210.48">41.41°</text>
+  <text text-anchor="middle" x="150" y="60">82.82°</text>
+ </svg>
+ <p>Medians:</p>
+ <p>
+  <span class="eq">
+   <var>m</var>
+   <sub>a</sub>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    <span class="dvc">
+     <var>b</var>
+     <sup>2</sup>
+     +
+     <var>c</var>
+     <sup>2</sup>
+     − 0.5 ·
+     <var>a</var>
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     2
+    </span>
+   </span>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    <span class="dvc">
+     4
+     <sup>2</sup>
+     + 6
+     <sup>2</sup>
+     − 0.5 · 5
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     2
+    </span>
+   </span>
+   = 4.44
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>m</var>
+   <sub>b</sub>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    <span class="dvc">
+     <var>a</var>
+     <sup>2</sup>
+     +
+     <var>c</var>
+     <sup>2</sup>
+     − 0.5 ·
+     <var>b</var>
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     2
+    </span>
+   </span>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    <span class="dvc">
+     5
+     <sup>2</sup>
+     + 6
+     <sup>2</sup>
+     − 0.5 · 4
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     2
+    </span>
+   </span>
+   = 5.15
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>m</var>
+   <sub>c</sub>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    <span class="dvc">
+     <var>a</var>
+     <sup>2</sup>
+     +
+     <var>b</var>
+     <sup>2</sup>
+     − 0.5 ·
+     <var>c</var>
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     2
+    </span>
+   </span>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    <span class="dvc">
+     5
+     <sup>2</sup>
+     + 4
+     <sup>2</sup>
+     − 0.5 · 6
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     2
+    </span>
+   </span>
+   = 3.39
+  </span>
+ </p>
+ <svg style="font-size: 18px; width: 220pt; height: 130.24pt" version="1.1" viewbox="-20 -20 440 260.48" xmlns="http://www.w3.org/2000/svg">
+  <line style="stroke:orange; stroke-width:1" x1="0" x2="275" y1="220.48" y2="110.24">
+  </line>
+  <line style="stroke:orange; stroke-width:1" x1="400" x2="75" y1="220.48" y2="110.24">
+  </line>
+  <line style="stroke:orange; stroke-width:1" x1="150" x2="200" y1="0" y2="220.48">
+  </line>
+  <polyline points="0,220.48 400,220.48 150,0 0,220.48" style="stroke:black; stroke-width:2; fill:yellow; fill-opacity:0.2">
+  </polyline>
+  <circle cx="0" cy="220.48" r="4" style="fill:red">
+  </circle>
+  <circle cx="400" cy="220.48" r="4" style="fill:red">
+  </circle>
+  <circle cx="150" cy="0" r="4" style="fill:red">
+  </circle>
+  <circle cx="183.33" cy="146.99" r="4" style="fill:red">
+  </circle>
+  <text text-anchor="end" x="0" y="240.48">A</text>
+  <text x="400" y="240.48">B</text>
+  <text x="150" y="-5">C</text>
+  <text font-style="italic" x="71.67" y="173.73">m</text>
+  <text font-style="italic" x="296.67" y="178.73">m</text>
+  <text font-style="italic" x="171.67" y="63.49">m</text>
+  <text x="86.67" y="179.73">a</text>
+  <text x="311.67" y="184.73">b</text>
+  <text x="186.67" y="69.49">c</text>
+ </svg>
+ <p>Angle bisectors:</p>
+ <p>
+  <span class="eq">
+   <var>l</var>
+   <sub>a</sub>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    <var>b</var>
+    ·
+    <var>c</var>
+    ·
+    <span class="b1">(</span>
+    1 −
+    <span class="dvc">
+     <var>a</var>
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     (
+     <var>b</var>
+     +
+     <var>c</var>
+     )
+     <sup>2</sup>
+    </span>
+    <span class="b1">)</span>
+   </span>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    4 · 6 ·
+    <span class="b1">(</span>
+    1 −
+    <span class="dvc">
+     5
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     ( 4 + 6 )
+     <sup>2</sup>
+    </span>
+    <span class="b1">)</span>
+   </span>
+   = 4.24
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>l</var>
+   <sub>b</sub>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    <var>a</var>
+    ·
+    <var>c</var>
+    ·
+    <span class="b1">(</span>
+    1 −
+    <span class="dvc">
+     <var>b</var>
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     (
+     <var>a</var>
+     +
+     <var>c</var>
+     )
+     <sup>2</sup>
+    </span>
+    <span class="b1">)</span>
+   </span>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    5 · 6 ·
+    <span class="b1">(</span>
+    1 −
+    <span class="dvc">
+     4
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     ( 5 + 6 )
+     <sup>2</sup>
+    </span>
+    <span class="b1">)</span>
+   </span>
+   = 5.1
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>l</var>
+   <sub>c</sub>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    <var>a</var>
+    ·
+    <var>b</var>
+    ·
+    <span class="b1">(</span>
+    1 −
+    <span class="dvc">
+     <var>c</var>
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     (
+     <var>a</var>
+     +
+     <var>b</var>
+     )
+     <sup>2</sup>
+    </span>
+    <span class="b1">)</span>
+   </span>
+   =
+   <span class="o1">
+    <span class="r1">
+    </span>
+    5 · 4 ·
+    <span class="b1">(</span>
+    1 −
+    <span class="dvc">
+     6
+     <sup>2</sup>
+     <span class="dvl">
+     </span>
+     ( 5 + 4 )
+     <sup>2</sup>
+    </span>
+    <span class="b1">)</span>
+   </span>
+   = 3.33
+  </span>
+ </p>
+ <svg style="font-size: 18px; width: 220pt; height: 220pt" version="1.1" viewbox="-20 -20 440 440" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="200" cy="200" r="200" style="stroke:red; fill:none ">
+  </circle>
+  <circle cx="166.93" cy="137.5" r="87.5" style="stroke:green; fill:palegreen; fill-opacity:0.4">
+  </circle>
+  <path d="M41.57 225 A 40 40 0 0 0 24.07 191.93" style="stroke:goldenrod; stroke-width:1; fill: none">
+  </path>
+  <path d="M358.43 225 A 40 40 0 0 1 368.43 198.54" style="stroke:goldenrod; stroke-width:1; fill: none">
+  </path>
+  <path d="M180.39 32.71 A 40 40 0 0 1 127.89 39.32" style="stroke:goldenrod; stroke-width:1; fill: none">
+  </path>
+  <line style="stroke:green; stroke-width:1" x1="1.57" x2="249.61" y1="225" y2="93.75">
+  </line>
+  <line style="stroke:green; stroke-width:1" x1="398.43" x2="82.75" y1="225" y2="105.68">
+  </line>
+  <line style="stroke:green; stroke-width:1" x1="150.39" x2="177.95" y1="6.25" y2="225">
+  </line>
+  <polyline points="1.57,225 398.43,225 150.39,6.25 1.57,225" style="stroke:black; stroke-width:2; fill:yellow; fill-opacity:0.2">
+  </polyline>
+  <circle cx="1.57" cy="225" r="4" style="fill:red">
+  </circle>
+  <circle cx="398.43" cy="225" r="4" style="fill:red">
+  </circle>
+  <circle cx="150.39" cy="6.25" r="4" style="fill:red">
+  </circle>
+  <circle cx="166.93" cy="137.5" r="4" style="fill:red">
+  </circle>
+  <circle cx="200" cy="200" r="4" style="fill:red">
+  </circle>
+  <text text-anchor="end" x="1.57" y="245">A</text>
+  <text x="398.43" y="245">B</text>
+  <text x="150.39" y="1.25">C</text>
+  <text x="200" y="195">O</text>
+  <text font-style="italic" x="64.25" y="171.25">l</text>
+  <text font-style="italic" x="298.2" y="180.23">l</text>
+  <text font-style="italic" x="164.58" y="69.17">l</text>
+  <text x="70.25" y="177.25">a</text>
+  <text x="304.2" y="186.23">b</text>
+  <text x="170.58" y="75.17">c</text>
+ </svg>
+ <p>Altitudes:</p>
+ <p>
+  <span class="eq">
+   <var>h</var>
+   <sub>a</sub>
+   =
+   <var>b</var>
+   ·
+   <b>sin</b>
+   (
+   <var>γ</var>
+   )  = 4 ·
+   <b>sin</b>
+   ( 82.82 )  = 3.97
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>h</var>
+   <sub>b</sub>
+   =
+   <var>c</var>
+   ·
+   <b>sin</b>
+   (
+   <var>α</var>
+   )  = 6 ·
+   <b>sin</b>
+   ( 55.77 )  = 4.96
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>h</var>
+   <sub>c</sub>
+   =
+   <var>a</var>
+   ·
+   <b>sin</b>
+   (
+   <var>β</var>
+   )  = 5 ·
+   <b>sin</b>
+   ( 41.41 )  = 3.31
+  </span>
+ </p>
+ <svg style="font-size: 18px; width: 220pt; height: 129.38pt" version="1.1" viewbox="-20 -20 440 258.75" xmlns="http://www.w3.org/2000/svg">
+  <line style="stroke:red; stroke-width:1; stroke-dasharray: 5,5; stroke-opacity:0.4" x1="148.82" x2="173.63" y1="50" y2="21.88">
+  </line>
+  <line style="stroke:red; stroke-width:1; stroke-dasharray: 5,5; stroke-opacity:0.4" x1="148.82" x2="125.57" y1="50" y2="34.18">
+  </line>
+  <line style="stroke:red; stroke-width:1; stroke-dasharray: 5,5; stroke-opacity:0.4" x1="148.82" x2="148.82" y1="50" y2="218.75">
+  </line>
+  <line style="stroke:red; stroke-width:1" x1="0" x2="173.63" y1="218.75" y2="21.88">
+  </line>
+  <line style="stroke:red; stroke-width:1" x1="396.86" x2="125.57" y1="218.75" y2="34.18">
+  </line>
+  <line style="stroke:red; stroke-width:1" x1="148.82" x2="148.82" y1="218.75" y2="0">
+  </line>
+  <line style="stroke:black; stroke-width:1; stroke-dasharray: 5,5; stroke-opacity:0.2" x1="396.86" x2="173.63" y1="218.75" y2="21.88">
+  </line>
+  <line style="stroke:black; stroke-width:1; stroke-dasharray: 5,5; stroke-opacity:0.2" x1="148.82" x2="173.63" y1="0" y2="21.88">
+  </line>
+  <line style="stroke:black; stroke-width:1; stroke-dasharray: 5,5; stroke-opacity:0.2" x1="0" x2="125.57" y1="218.75" y2="34.18">
+  </line>
+  <line style="stroke:black; stroke-width:1; stroke-dasharray: 5,5; stroke-opacity:0.2" x1="148.82" x2="125.57" y1="0" y2="34.18">
+  </line>
+  <line style="stroke:black; stroke-width:1; stroke-dasharray: 5,5; stroke-opacity:0.2" x1="0" x2="148.82" y1="218.75" y2="218.75">
+  </line>
+  <line style="stroke:black; stroke-width:1; stroke-dasharray: 5,5; stroke-opacity:0.2" x1="396.86" x2="148.82" y1="218.75" y2="218.75">
+  </line>
+  <polyline points="0,218.75 396.86,218.75 148.82,0 0,218.75" style="stroke:black; stroke-width:2; fill:yellow; fill-opacity:0.2">
+  </polyline>
+  <circle cx="0" cy="218.75" r="4" style="fill:red">
+  </circle>
+  <circle cx="396.86" cy="218.75" r="4" style="fill:red">
+  </circle>
+  <circle cx="148.82" cy="0" r="4" style="fill:red">
+  </circle>
+  <circle cx="148.82" cy="50" r="4" style="fill:red">
+  </circle>
+  <text text-anchor="end" x="0" y="238.75">A</text>
+  <text x="396.86" y="238.75">B</text>
+  <text x="148.82" y="-5">C</text>
+  <text font-style="italic" x="66.81" y="110.31">h</text>
+  <text font-style="italic" x="266.22" y="121.46">h</text>
+  <text font-style="italic" x="153.82" y="99.37">h</text>
+  <text x="78.81" y="116.31">a</text>
+  <text x="278.22" y="127.46">b</text>
+  <text x="165.82" y="105.37">c</text>
+ </svg>
+</div>

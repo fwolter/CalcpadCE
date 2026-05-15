@@ -1,0 +1,1779 @@
+<div class="calcpad-output">
+ <!-- Solves a 4-variable nonlinear system three ways — fixed-point iteration, Newton-Raphson with the analytical Jacobian, and Broyden quasi-Newton — converging on the same root with very different iteration counts and step sizes. -->
+ <!-- <span class="eq"><var><span class="vec">⃗</span>x</var> = <span class="b0">[</span>1; 1; 1; 1<span class="b0">]</span> = <b class="b0">[</b>1 1 1 1<b class="b0">]</b></span> , <span class="eq"><var>g</var> ( <var>x</var> )  = 0</span> , <span class="eq"><var>g</var><sub>k</sub> ( <var>x</var> )  = 0</span> , <span class="eq"><var>f′</var> ( <var>x</var> )  = 0</span> , <span class="eq"><var>J</var> ( <var>x</var> )  = 0</span> -->
+ <p>Given the following real system of equations:</p>
+ <div style="border-left:solid 1pt; margin-left:2em; padding-left:4pt;">
+  <p>
+   <span class="eq">
+    5 ·
+    <var>x</var>
+    <sub>1</sub>
+    + 4 ·
+    <var>x</var>
+    <sub>2</sub>
+    +
+    <var>x</var>
+    <sub>3</sub>
+    −
+    <var>x</var>
+    <sub>4</sub>
+    <sup>2</sup>
+   </span>
+   =
+   <span class="eq">0</span>
+  </p>
+  <p>
+   <span class="eq">
+    <var>
+     <span class="vec">⃗</span>
+     x
+    </var>
+    <sub>1</sub>
+    <sup>2</sup>
+    −
+    <var>x</var>
+    <sub>2</sub>
+    + 2 ·
+    <var>x</var>
+    <sub>3</sub>
+    −
+    <span class="o0">
+     <span class="r">√</span>
+     <var>x</var>
+     <sub>4</sub>
+    </span>
+    − 3
+   </span>
+   =
+   <span class="eq">0</span>
+  </p>
+  <p>
+   <span class="eq">
+    3 ·
+    <var>x</var>
+    <sub>1</sub>
+    <sup>3</sup>
+    − 2 ·
+    <var>x</var>
+    <sub>2</sub>
+    <sup>3</sup>
+    + 3 ·
+    <var>x</var>
+    <sub>3</sub>
+    + 2 ·
+    <var>x</var>
+    <sub>4</sub>
+    − 4
+   </span>
+   =
+   <span class="eq">0</span>
+  </p>
+  <p>
+   <span class="eq">
+    4 ·
+    <var>x</var>
+    <sub>1</sub>
+    − 3 ·
+    <var>x</var>
+    <sub>2</sub>
+    +
+    <var>x</var>
+    <sub>3</sub>
+    <sup>2</sup>
+    +
+    <var>x</var>
+    <sub>4</sub>
+    − 11
+   </span>
+   =
+   <span class="eq">0</span>
+  </p>
+ </div>
+ <p>
+  Find:
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>1</sub>
+  </span>
+  = ?,
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>2</sub>
+  </span>
+  = ?,
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>3</sub>
+  </span>
+  = ?,
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>4</sub>
+  </span>
+  = ?
+ </p>
+ <h3>Solution</h3>
+ <h4>1. Fixed point iteration method</h4>
+ <p>
+  Fixed point iteration is the slowest, but also the most simple and intuitive method for solving nonlinear equations of type
+  <span class="eq">
+   <var>f</var>
+   (
+   <var>x</var>
+   )  = 0
+  </span>
+  . First, the equation is transformed into the following expression:
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+  </span>
+  =
+  <span class="eq">
+   <var>g</var>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   )
+  </span>
+  . Then, starting from an initial guess
+  <span class="eq">
+   <var>x</var>
+   <sub>⁰</sub>
+  </span>
+  , it is repeatedly executed until it hopefully converges, as follows:
+ </p>
+ <p>
+  <span class="eq">
+   <var>x</var>
+   <sub>ⁿ⁺¹</sub>
+   =
+   <var>g</var>
+   (
+   <var>x</var>
+   <sub>ⁿ</sub>
+   )
+  </span>
+ </p>
+ <p>In the multidimensional case, the solution is performed in the following way:</p>
+ <p>
+  Rearrange the equations in the form:
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>
+    <var>k</var>
+   </sub>
+  </span>
+  =
+  <span class="eq">
+   <var>g</var>
+   <sub>k</sub>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   )
+  </span>
+  , so that
+  <span class="eq">
+   <var>g</var>
+   <sub>k</sub>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   )
+  </span>
+  is contractive. We will use the following expressions for the functions
+  <span class="eq">
+   <var>g</var>
+   <sub>k</sub>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   )
+  </span>
+  :
+ </p>
+ <p>
+  <span class="eq">
+   <var>g</var>
+   <sub>4</sub>
+   (
+   <var>x</var>
+   )  =
+   <span class="o0">
+    <span class="r">√</span>
+    <b class="b0">|</b>
+    5 ·
+    <var>x</var>
+    <sub>1</sub>
+    + 4 ·
+    <var>x</var>
+    <sub>2</sub>
+    +
+    <var>x</var>
+    <sub>3</sub>
+    <b class="b0">|</b>
+   </span>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>g</var>
+   <sub>1</sub>
+   (
+   <var>x</var>
+   )  =
+   <span class="o0">
+    <span class="r">√</span>
+    <b class="b0">|</b>
+    <var>x</var>
+    <sub>2</sub>
+    − 2 ·
+    <var>x</var>
+    <sub>3</sub>
+    +
+    <span class="o0">
+     <span class="r">√</span>
+     <b class="b0">|</b>
+     <var>x</var>
+     <sub>4</sub>
+     <b class="b0">|</b>
+    </span>
+    + 3
+    <b class="b0">|</b>
+   </span>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>g</var>
+   <sub>2</sub>
+   (
+   <var>x</var>
+   )  =
+   <small class="nth">3</small>
+   <span class="o1">
+    <span class="r1">
+    </span>
+    <span class="dvc">
+     3 ·
+     <var>x</var>
+     <sub>1</sub>
+     <sup>3</sup>
+     + 3 ·
+     <var>x</var>
+     <sub>3</sub>
+     + 2 ·
+     <var>x</var>
+     <sub>4</sub>
+     − 4
+     <span class="dvl">
+     </span>
+     2
+    </span>
+   </span>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>g</var>
+   <sub>3</sub>
+   (
+   <var>x</var>
+   )  =
+   <span class="o0">
+    <span class="r">√</span>
+    <b class="b0">|</b>
+    -4 ·
+    <var>x</var>
+    <sub>1</sub>
+    + 3 ·
+    <var>x</var>
+    <sub>2</sub>
+    −
+    <var>x</var>
+    <sub>4</sub>
+    + 11
+    <b class="b0">|</b>
+   </span>
+  </span>
+ </p>
+ <p>
+  Select an initial guess -
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   =
+   <span class="b0">[</span>
+   2; 2; 2; 2
+   <span class="b0">]</span>
+   =
+   <b class="b0">[</b>
+   2 2 2 2
+   <b class="b0">]</b>
+  </span>
+ </p>
+ <p>
+  Set the relative precision -
+  <span class="eq">
+   <var>ε</var>
+   <sub>max</sub>
+   = 10
+   <sup>-15</sup>
+  </span>
+ </p>
+ <p>Calculate the following expressions iteratively (the last results are displayed only):</p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   =
+   <b>join</b>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   )  =
+   <b class="b0">[</b>
+   1 2 3 4
+   <b class="b0">]</b>
+  </span>
+  - store a copy of the previous vector
+  <var>x</var>
+ </p>
+ <p>Update the solution vector with a new approximation</p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>1</sub>
+   =
+   <var>g</var>
+   <sub>1</sub>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   )  = 1
+  </span>
+  ,
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>2</sub>
+   =
+   <var>g</var>
+   <sub>2</sub>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   )  = 2
+  </span>
+  ,
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>3</sub>
+   =
+   <var>g</var>
+   <sub>3</sub>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   )  = 3
+  </span>
+  ,
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>4</sub>
+   =
+   <var>g</var>
+   <sub>4</sub>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   )  = 4
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    δx
+   </var>
+   =
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   −
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   =
+   <b class="b0">[</b>
+   -3.11×10
+   <sup>-15</sup>
+   -8.88×10
+   <sup>-16</sup>
+   2.22×10
+   <sup>-15</sup>
+   -2.66×10
+   <sup>-15</sup>
+   <b class="b0">]</b>
+  </span>
+  - difference
+ </p>
+ <p>
+  <span class="eq">
+   <var>ε</var>
+   =
+   <span class="dvc">
+    <b>norm</b>
+    <sub>e</sub>
+    (
+    <var>
+     <span class="vec">⃗</span>
+     δx
+    </var>
+    )
+    <span class="dvl">
+    </span>
+    <b>norm</b>
+    <sub>e</sub>
+    (
+    <var>
+     <span class="vec">⃗</span>
+     x
+    </var>
+    )
+   </span>
+   = 8.66×10
+   <sup>-16</sup>
+  </span>
+  - relative error
+ </p>
+ <p>
+  Loop until
+  <span class="eq">
+   <var>ε</var>
+  </span>
+  &lt;
+  <span class="eq">
+   <var>ε</var>
+   <sub>max</sub>
+  </span>
+  or
+  <span class="eq">
+   <var>n</var>
+  </span>
+  ≤
+  <span class="eq">1000</span>
+  (guard limit in case of divergence).
+ </p>
+ <p>
+  Completed in
+  <span class="eq">
+   <var>n</var>
+   = 256
+  </span>
+  iterations at
+  <span class="eq">
+   <var>ε</var>
+   = 8.66×10
+   <sup>-16</sup>
+  </span>
+  &lt;
+  <span class="eq">
+   <var>ε</var>
+   <sub>max</sub>
+   = 10
+   <sup>-15</sup>
+  </span>
+  .
+ </p>
+ <p>
+  Result -
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   =
+   <b class="b0">[</b>
+   1 2 3 4
+   <b class="b0">]</b>
+  </span>
+ </p>
+ <p>Check:</p>
+ <p>
+  <span class="eq">
+   5 ·
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>1</sub>
+   + 4 ·
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>2</sub>
+   +
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>3</sub>
+   −
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>4</sub>
+   <sup>2</sup>
+   = 5.33×10
+   <sup>-15</sup>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>1</sub>
+   <sup>2</sup>
+   −
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>2</sub>
+   + 2 ·
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>3</sub>
+   −
+   <span class="o0">
+    <span class="r">√</span>
+    <var>
+     <span class="vec">⃗</span>
+     x
+    </var>
+    <sub>4</sub>
+   </span>
+   − 3 = 6.22×10
+   <sup>-15</sup>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   3 ·
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>1</sub>
+   <sup>3</sup>
+   − 2 ·
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>2</sub>
+   <sup>3</sup>
+   + 3 ·
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>3</sub>
+   + 2 ·
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>4</sub>
+   − 4 = 1.78×10
+   <sup>-15</sup>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   4 ·
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>1</sub>
+   − 3 ·
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>2</sub>
+   +
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>3</sub>
+   <sup>2</sup>
+   +
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   <sub>4</sub>
+   − 11 = -3.55×10
+   <sup>-15</sup>
+  </span>
+ </p>
+ <h4>2. Newton-Raphson’s method</h4>
+ <p>In the one-dimensional case, we obtain the solution iteratively by constructing the tangent line to the function at the current point and intersecting it with the abscissa to obtain the next point.</p>
+ <img alt="Newton.png" src="./Newton.png" style="height:100pt; width:160pt;"/>
+ <p>
+  This process can be represented by the following equation -
+  <span class="eq">
+   <var>x</var>
+   <sub>ⁿ⁺¹</sub>
+   =
+   <var>x</var>
+   <sub>ⁿ</sub>
+   −
+   <span class="dvc">
+    <var>f</var>
+    (
+    <var>x</var>
+    <sub>ⁿ</sub>
+    )
+    <span class="dvl">
+    </span>
+    <var>f′</var>
+    (
+    <var>x</var>
+    <sub>ⁿ</sub>
+    )
+   </span>
+  </span>
+ </p>
+ <p>
+  In the multidimensional case,
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+  </span>
+  is a vector,
+  <span class="eq">
+   <var>f</var>
+  </span>
+  is a vector-valued function, and
+  <span class="eq">
+   <var>f′</var>
+  </span>
+  is replaced by the matrix of the partial derivatives, called "Jacobian" (
+  <span class="eq">
+   <i>J</i>
+  </span>
+  ). So, the above equation is transformed to the expression:
+  <span class="eq">
+   <var>x</var>
+   <sub>ⁿ⁺¹</sub>
+   =
+   <var>x</var>
+   <sub>ⁿ</sub>
+   −
+   <var>J</var>
+   (
+   <var>x</var>
+   <sub>ⁿ</sub>
+   )
+   <sup>-1</sup>
+   ·
+   <var>f</var>
+   (
+   <var>x</var>
+   <sub>ⁿ</sub>
+   )
+  </span>
+  , where
+  <span class="eq">
+   <var>J</var>
+   <sub>ij</sub>
+   =
+   <span class="dvc">
+    <var>df</var>
+    <sub>i</sub>
+    <span class="dvl">
+    </span>
+    <var>dx</var>
+    <sub>j</sub>
+   </span>
+  </span>
+  . The solution is performed as follows:
+ </p>
+ <p>Define the equations as functions:</p>
+ <p>
+  <span class="eq">
+   <var>f</var>
+   <sub>1</sub>
+   (
+   <var>x</var>
+   )  = 5 ·
+   <var>x</var>
+   <sub>1</sub>
+   + 4 ·
+   <var>x</var>
+   <sub>2</sub>
+   +
+   <var>x</var>
+   <sub>3</sub>
+   −
+   <var>x</var>
+   <sub>4</sub>
+   <sup>2</sup>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>f</var>
+   <sub>2</sub>
+   (
+   <var>x</var>
+   )  =
+   <var>x</var>
+   <sub>1</sub>
+   <sup>2</sup>
+   −
+   <var>x</var>
+   <sub>2</sub>
+   + 2 ·
+   <var>x</var>
+   <sub>3</sub>
+   −
+   <span class="o0">
+    <span class="r">√</span>
+    <b class="b0">|</b>
+    <var>x</var>
+    <sub>4</sub>
+    <b class="b0">|</b>
+   </span>
+   − 3
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>f</var>
+   <sub>3</sub>
+   (
+   <var>x</var>
+   )  = 3 ·
+   <var>x</var>
+   <sub>1</sub>
+   <sup>3</sup>
+   − 2 ·
+   <var>x</var>
+   <sub>2</sub>
+   <sup>3</sup>
+   + 3 ·
+   <var>x</var>
+   <sub>3</sub>
+   + 2 ·
+   <var>x</var>
+   <sub>4</sub>
+   − 4
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>f</var>
+   <sub>4</sub>
+   (
+   <var>x</var>
+   )  = 4 ·
+   <var>x</var>
+   <sub>1</sub>
+   − 3 ·
+   <var>x</var>
+   <sub>2</sub>
+   +
+   <var>x</var>
+   <sub>3</sub>
+   <sup>2</sup>
+   +
+   <var>x</var>
+   <sub>4</sub>
+   − 11
+  </span>
+ </p>
+ <p>Represent the whole system as a single vector-valued function:</p>
+ <p>
+  <span class="eq">
+   <var>f</var>
+   (
+   <var>x</var>
+   )  =
+   <span class="b0">[</span>
+   <var>f</var>
+   <sub>1</sub>
+   (
+   <var>x</var>
+   ) ;
+   <var>f</var>
+   <sub>2</sub>
+   (
+   <var>x</var>
+   ) ;
+   <var>f</var>
+   <sub>3</sub>
+   (
+   <var>x</var>
+   ) ;
+   <var>f</var>
+   <sub>4</sub>
+   (
+   <var>x</var>
+   )
+   <span class="b0">]</span>
+   <b class="err" title=" Warning! Function redefined.">!!!</b>
+  </span>
+ </p>
+ <p>
+  Define the Jacobian matrix containing the partial derivatives of the function
+  <span class="eq">
+   <var>f</var>
+  </span>
+  :
+ </p>
+ <p>
+  <span class="eq">
+   <var>J</var>
+   (
+   <var>x</var>
+   )  =
+   <span class="b1">[</span>
+   5; 4; 1; -2 ·
+   <var>x</var>
+   <sub>4</sub>
+   <span class="b0">|</span>
+   2 ·
+   <var>x</var>
+   <sub>1</sub>
+   ; -1; 2;
+   <span class="dvc">
+    -1
+    <span class="dvl">
+    </span>
+    2 ·
+    <span class="o0">
+     <span class="r">√</span>
+     <b class="b0">|</b>
+     <var>x</var>
+     <sub>4</sub>
+     <b class="b0">|</b>
+    </span>
+   </span>
+   <span class="b0">|</span>
+   9 ·
+   <var>x</var>
+   <sub>1</sub>
+   <sup>2</sup>
+   ; -6 ·
+   <var>x</var>
+   <sub>2</sub>
+   <sup>2</sup>
+   ; 3; 2
+   <span class="b0">|</span>
+   4; -3; 2 ·
+   <var>x</var>
+   <sub>3</sub>
+   ; 1
+   <span class="b1">]</span>
+   <b class="err" title=" Warning! Function redefined.">!!!</b>
+  </span>
+ </p>
+ <p>
+  Initial guess -
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   =
+   <span class="b0">[</span>
+   2; 2; 2; 2
+   <span class="b0">]</span>
+   =
+   <b class="b0">[</b>
+   2 2 2 2
+   <b class="b0">]</b>
+  </span>
+ </p>
+ <p>Calculate the following expressions iteratively (the last results are displayed only):</p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   =
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   =
+   <b class="b0">[</b>
+   1 2 3 4
+   <b class="b0">]</b>
+  </span>
+  - store the previous vector
+  <var>x</var>
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    δx
+   </var>
+   =
+   <b>inverse</b>
+   (
+   <var>J</var>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   )  )  ·
+   <var>f</var>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   )  =
+   <b class="b0">[</b>
+   3.21×10
+   <sup>-15</sup>
+   8.03×10
+   <sup>-16</sup>
+   -1.84×10
+   <sup>-15</sup>
+   2.4×10
+   <sup>-15</sup>
+   <b class="b0">]</b>
+  </span>
+  - difference
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   =
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   −
+   <var>
+    <span class="vec">⃗</span>
+    δx
+   </var>
+   =
+   <b class="b0">[</b>
+   1 2 3 4
+   <b class="b0">]</b>
+  </span>
+  - update the solution vector
+ </p>
+ <p>
+  <span class="eq">
+   <var>ε</var>
+   =
+   <span class="dvc">
+    <b>norm</b>
+    <sub>e</sub>
+    (
+    <var>
+     <span class="vec">⃗</span>
+     δx
+    </var>
+    )
+    <span class="dvl">
+    </span>
+    <b>norm</b>
+    <sub>e</sub>
+    (
+    <var>
+     <span class="vec">⃗</span>
+     x
+    </var>
+    )
+   </span>
+   = 8.19×10
+   <sup>-16</sup>
+  </span>
+  - relative error
+ </p>
+ <p>
+  Loop until
+  <span class="eq">
+   <var>ε</var>
+  </span>
+  &lt;
+  <span class="eq">
+   <var>ε</var>
+   <sub>max</sub>
+  </span>
+  or
+  <span class="eq">
+   <var>n</var>
+  </span>
+  ≤
+  <span class="eq">1000</span>
+  (guard limit in case of divergence).
+ </p>
+ <p>
+  Completed in
+  <span class="eq">
+   <var>n</var>
+   = 12
+  </span>
+  iterations at
+  <span class="eq">
+   <var>ε</var>
+   = 8.19×10
+   <sup>-16</sup>
+  </span>
+  &lt;
+  <span class="eq">
+   <var>ε</var>
+   <sub>max</sub>
+   = 10
+   <sup>-15</sup>
+  </span>
+  .
+ </p>
+ <p>
+  Result -
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   =
+   <b class="b0">[</b>
+   1 2 3 4
+   <b class="b0">]</b>
+  </span>
+ </p>
+ <p>
+  Check -
+  <span class="eq">
+   <var>f</var>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x
+   </var>
+   )  =
+   <b class="b0">[</b>
+   1.78×10
+   <sup>-15</sup>
+   0 1.78×10
+   <sup>-15</sup>
+   0
+   <b class="b0">]</b>
+  </span>
+ </p>
+ <h4>3. Broyden’s method</h4>
+ <p>The Broyden’s method is the mulidimensional equivalent to the secant method. It is similar to Newton’s method, but instead of calculating the inverse Jacobian on each iteration, it uses the secant between two consecutive approximations.</p>
+ <img alt="Secant.png" src="./Secant.png" style="height:100pt; width:160pt;"/>
+ <p>Although its convergence is slower, it avoids the heavy operation on computing and inverting the Jacobian each time. The solution is performed as follows:</p>
+ <p>
+  Initial guess -
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   =
+   <span class="b0">[</span>
+   2; 2; 2; 2
+   <span class="b0">]</span>
+   =
+   <b class="b0">[</b>
+   2 2 2 2
+   <b class="b0">]</b>
+  </span>
+ </p>
+ <p>Find the first approximation by using the Jacobian as in Newton-Raphson’s method</p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    y⁰
+   </var>
+   =
+   <var>f</var>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   )  =
+   <b class="b0">[</b>
+   16 1.59 14 -3
+   <b class="b0">]</b>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <b>
+    <var>J</var>
+   </b>
+   <sub>inv</sub>
+   =
+   <b>inverse</b>
+   (
+   <var>J</var>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   )  )  =
+   <span class="matrix">
+    <span class="tr">
+     <span class="td">
+     </span>
+     <span class="td">-0.477</span>
+     <span class="td">2.3</span>
+     <span class="td">-0.0514</span>
+     <span class="td">-0.993</span>
+     <span class="td">
+     </span>
+    </span>
+    <span class="tr">
+     <span class="td">
+     </span>
+     <span class="td">-0.816</span>
+     <span class="td">3.87</span>
+     <span class="td">-0.135</span>
+     <span class="td">-1.63</span>
+     <span class="td">
+     </span>
+    </span>
+    <span class="tr">
+     <span class="td">
+     </span>
+     <span class="td">0.265</span>
+     <span class="td">-1.02</span>
+     <span class="td">-0.000265</span>
+     <span class="td">0.696</span>
+     <span class="td">
+     </span>
+    </span>
+    <span class="tr">
+     <span class="td">
+     </span>
+     <span class="td">-1.6</span>
+     <span class="td">6.49</span>
+     <span class="td">-0.2</span>
+     <span class="td">-2.69</span>
+     <span class="td">
+     </span>
+    </span>
+   </span>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x¹
+   </var>
+   =
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   −
+   <b>
+    <var>J</var>
+   </b>
+   <sub>inv</sub>
+   ·
+   <var>
+    <span class="vec">⃗</span>
+    y⁰
+   </var>
+   =
+   <b class="b0">[</b>
+   3.73 5.94 1.49 11.97
+   <b class="b0">]</b>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    y¹
+   </var>
+   =
+   <var>f</var>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x¹
+   </var>
+   )  =
+   <b class="b0">[</b>
+   -99.47 4.47 -239.78 0.265
+   <b class="b0">]</b>
+  </span>
+ </p>
+ <p>
+  Correction factor to improve stability -
+  <span class="eq">
+   <var>α</var>
+   = 0.9
+  </span>
+ </p>
+ <p>Calculate the following expressions iteratively (the last results are displayed only):</p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    y⁰
+   </var>
+   =
+   <var>f</var>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   )  =
+   <b class="b0">[</b>
+   -5.33×10
+   <sup>-14</sup>
+   3.46×10
+   <sup>-14</sup>
+   7.67×10
+   <sup>-13</sup>
+   9.59×10
+   <sup>-14</sup>
+   <b class="b0">]</b>
+  </span>
+  - function values at prev. step
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x¹
+   </var>
+   =
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   −
+   <b>
+    <var>J</var>
+   </b>
+   <sub>inv</sub>
+   ·
+   <var>
+    <span class="vec">⃗</span>
+    y⁰
+   </var>
+   =
+   <b class="b0">[</b>
+   1 2 3 4
+   <b class="b0">]</b>
+  </span>
+  - current step approximation
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    y¹
+   </var>
+   =
+   <var>f</var>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x¹
+   </var>
+   )  =
+   <b class="b0">[</b>
+   -1.78×10
+   <sup>-15</sup>
+   -4.44×10
+   <sup>-16</sup>
+   0 8.88×10
+   <sup>-16</sup>
+   <b class="b0">]</b>
+  </span>
+  - function values at current step
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    Δx
+   </var>
+   =
+   <var>
+    <span class="vec">⃗</span>
+    x¹
+   </var>
+   −
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   =
+   <b class="b0">[</b>
+   9.88×10
+   <sup>-15</sup>
+   3.62×10
+   <sup>-14</sup>
+   -7.11×10
+   <sup>-15</sup>
+   1.69×10
+   <sup>-14</sup>
+   <b class="b0">]</b>
+  </span>
+  - difference in approximations
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    Δy
+   </var>
+   =
+   <var>
+    <span class="vec">⃗</span>
+    y¹
+   </var>
+   −
+   <var>
+    <span class="vec">⃗</span>
+    y⁰
+   </var>
+   =
+   <b class="b0">[</b>
+   5.15×10
+   <sup>-14</sup>
+   -3.51×10
+   <sup>-14</sup>
+   -7.67×10
+   <sup>-13</sup>
+   -9.5×10
+   <sup>-14</sup>
+   <b class="b0">]</b>
+  </span>
+  - difference in function values
+ </p>
+ <p>Update the inverse of the Jacobian using the Sherman–Morrison formula:</p>
+ <p>
+  <span class="eq">
+   <b>
+    <var>ΔxTJ</var>
+   </b>
+   <sub>inv</sub>
+   =
+   <b>transp</b>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    Δx
+   </var>
+   )  ·
+   <b>
+    <var>J</var>
+   </b>
+   <sub>inv</sub>
+   =
+   <span class="matrix">
+    <span class="tr">
+     <span class="td">
+     </span>
+     <span class="td">
+      -2.32×10
+      <sup>-14</sup>
+     </span>
+     <span class="td">
+      1.47×10
+      <sup>-13</sup>
+     </span>
+     <span class="td">
+      1.76×10
+      <sup>-15</sup>
+     </span>
+     <span class="td">
+      -9.82×10
+      <sup>-14</sup>
+     </span>
+     <span class="td">
+     </span>
+    </span>
+   </span>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>ΔxTJΔy</var>
+   =
+   <b>
+    <var>ΔxTJ</var>
+   </b>
+   <sub>inv</sub>
+   ·
+   <var>
+    <span class="vec">⃗</span>
+    Δy
+   </var>
+   = 1.63×10
+   <sup>-27</sup>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <b>
+    <var>J</var>
+   </b>
+   <sub>inv</sub>
+   =
+   <b>
+    <var>J</var>
+   </b>
+   <sub>inv</sub>
+   +
+   <span class="dvc">
+    <var>
+     <span class="vec">⃗</span>
+     Δx
+    </var>
+    −
+    <b>
+     <var>J</var>
+    </b>
+    <sub>inv</sub>
+    ·
+    <var>
+     <span class="vec">⃗</span>
+     Δy
+    </var>
+    <span class="dvl">
+    </span>
+    <var>ΔxTJΔy</var>
+   </span>
+   ·
+   <b>
+    <var>ΔxTJ</var>
+   </b>
+   <sub>inv</sub>
+   =
+   <b>
+    <var>J</var>
+   </b>
+   <sub>inv</sub>
+   +
+   <span class="dvc">
+    <var>
+     <span class="vec">⃗</span>
+     Δx
+    </var>
+    −
+    <b>
+     <var>J</var>
+    </b>
+    <sub>inv</sub>
+    ·
+    <var>
+     <span class="vec">⃗</span>
+     Δy
+    </var>
+    <span class="dvl">
+    </span>
+    1.63×10
+    <sup>-27</sup>
+   </span>
+   ·
+   <b>
+    <var>ΔxTJ</var>
+   </b>
+   <sub>inv</sub>
+   =
+   <span class="matrix">
+    <span class="tr">
+     <span class="td">
+     </span>
+     <span class="td">-0.65</span>
+     <span class="td">3.79</span>
+     <span class="td">0.0953</span>
+     <span class="td">-2.62</span>
+     <span class="td">
+     </span>
+    </span>
+    <span class="tr">
+     <span class="td">
+     </span>
+     <span class="td">-0.159</span>
+     <span class="td">1.51</span>
+     <span class="td">-0.0143</span>
+     <span class="td">-0.909</span>
+     <span class="td">
+     </span>
+    </span>
+    <span class="tr">
+     <span class="td">
+     </span>
+     <span class="td">0.443</span>
+     <span class="td">-2.18</span>
+     <span class="td">-0.0805</span>
+     <span class="td">1.77</span>
+     <span class="td">
+     </span>
+    </span>
+    <span class="tr">
+     <span class="td">
+     </span>
+     <span class="td">-0.562</span>
+     <span class="td">2.93</span>
+     <span class="td">0.0524</span>
+     <span class="td">-1.99</span>
+     <span class="td">
+     </span>
+    </span>
+   </span>
+  </span>
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    δx
+   </var>
+   =
+   <b>
+    <var>J</var>
+   </b>
+   <sub>inv</sub>
+   ·
+   <var>
+    <span class="vec">⃗</span>
+    y¹
+   </var>
+   =
+   <b class="b0">[</b>
+   -2.86×10
+   <sup>-15</sup>
+   -1.2×10
+   <sup>-15</sup>
+   1.75×10
+   <sup>-15</sup>
+   -2.07×10
+   <sup>-15</sup>
+   <b class="b0">]</b>
+  </span>
+  - difference
+ </p>
+ <p>
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   =
+   <var>
+    <span class="vec">⃗</span>
+    x¹
+   </var>
+   −
+   <var>α</var>
+   ·
+   <var>
+    <span class="vec">⃗</span>
+    δx
+   </var>
+   =
+   <var>
+    <span class="vec">⃗</span>
+    x¹
+   </var>
+   − 0.9 ·
+   <var>
+    <span class="vec">⃗</span>
+    δx
+   </var>
+   =
+   <b class="b0">[</b>
+   1 2 3 4
+   <b class="b0">]</b>
+  </span>
+  - next approximation
+ </p>
+ <p>
+  <span class="eq">
+   <var>ε</var>
+   =
+   <span class="dvc">
+    <b>norm</b>
+    <sub>e</sub>
+    (
+    <var>
+     <span class="vec">⃗</span>
+     δx
+    </var>
+    )
+    <span class="dvl">
+    </span>
+    <b>norm</b>
+    <sub>e</sub>
+    (
+    <var>
+     <span class="vec">⃗</span>
+     x
+    </var>
+    )
+   </span>
+   = 7.51×10
+   <sup>-16</sup>
+  </span>
+  - relative error
+ </p>
+ <p>
+  Loop until
+  <span class="eq">
+   <var>ε</var>
+  </span>
+  &lt;
+  <span class="eq">
+   <var>ε</var>
+   <sub>max</sub>
+  </span>
+  or
+  <span class="eq">
+   <var>n</var>
+  </span>
+  ≤
+  <span class="eq">1000</span>
+  (guard limit in case of divergence).
+ </p>
+ <p>
+  Completed in
+  <span class="eq">
+   <var>n</var>
+   = 27
+  </span>
+  iterations at
+  <span class="eq">
+   <var>ε</var>
+   = 7.51×10
+   <sup>-16</sup>
+  </span>
+  &lt;
+  <span class="eq">
+   <var>ε</var>
+   <sub>max</sub>
+   = 10
+   <sup>-15</sup>
+  </span>
+  .
+ </p>
+ <p>
+  Result -
+  <span class="eq">
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   =
+   <b class="b0">[</b>
+   1 2 3 4
+   <b class="b0">]</b>
+  </span>
+ </p>
+ <p>
+  Check -
+  <span class="eq">
+   <var>f</var>
+   (
+   <var>
+    <span class="vec">⃗</span>
+    x⁰
+   </var>
+   )  =
+   <b class="b0">[</b>
+   1.78×10
+   <sup>-15</sup>
+   4.44×10
+   <sup>-16</sup>
+   0 -8.88×10
+   <sup>-16</sup>
+   <b class="b0">]</b>
+  </span>
+ </p>
+</div>
