@@ -27,10 +27,10 @@ _SCRIPTS_DIR = _REPO_ROOT / ".github" / "scripts"
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
 
-from calcpad_render import find_cli, render_many
+from render_cpd import find_cli, render_many
 
 log = logging.getLogger("mkdocs")
-render_log = logging.getLogger("calcpad_render")
+render_log = logging.getLogger("render_cpd")
 
 _temp_dir: str | None = None
 
