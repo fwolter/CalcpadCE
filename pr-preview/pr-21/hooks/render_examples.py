@@ -422,7 +422,7 @@ def _render_category_page(category: str, cpd_files: list[Path], fragments: dict[
     for cpd_file in cpd_files:
         name = re.sub(
             r"\s*\bAnimated\b",
-            ' <span title="Animated" aria-label="Animated" style="cursor:default">🎬</span>',
+            ' <span title="Animated" aria-label="Animated">🎬</span>',
             cpd_file.stem,
         )
         lines.append(f"\n## {name}\n")
@@ -461,6 +461,6 @@ def _render_category_page(category: str, cpd_files: list[Path], fragments: dict[
         except StopIteration:
             rel = urllib.parse.quote(cat_path.name, safe="")
         github_url = f"https://github.com/imartincei/CalcpadCE/tree/main/Examples/{rel}"
-        lines.append(f"\nSpotted an error? [Edit these examples.]({github_url})\n")
+        lines.append(f"\nSpotted an error? [Edit]({github_url}) these examples.\n")
 
     return "\n".join(lines)
