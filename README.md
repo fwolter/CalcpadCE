@@ -12,7 +12,7 @@
 
 <br>
 
-## 📖 What is CalcpadCE?
+## 📖 What is CalcpadCE?d
 
 CalcpadCE is an open-source tool for mathematical and engineering calculations.
 Write your formulas in a simple, readable syntax and get beautifully rendered output with plots, diagrams, and formatted results — all in real time.
