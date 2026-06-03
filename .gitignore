@@ -9,6 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+Calcpad.Web
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -92,6 +93,9 @@ StyleCopReport.xml
 *.pidb
 *.svclog
 *.scc
+
+# Files built by Visual Studio Code
+*.csproj.lscache
 
 # Chutzpah Test files
 _Chutzpah*
@@ -275,6 +279,16 @@ FakesAssemblies/
 .ntvs_analysis.dat
 node_modules/
 
+# MathJax bundle (downloaded during CI build)
+docs/javascripts/mathjax/
+
+# MkDocs build output
+site/
+
+# npm artifacts from local MathJax setup
+package.json
+package-lock.json
+
 # Visual Studio 6 build log
 *.plg
 
@@ -348,3 +362,6 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Installer output
+Calcpad.Wpf/Installer/Output/
