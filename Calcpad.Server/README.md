@@ -88,7 +88,7 @@ The server will start as a console application with:
 ### Docker (Linux)
 **Basic Docker:**
 ```bash
-docker build -t calcpad-server .
+docker build -f Calcpad.Server/Dockerfile -t calcpad-server .
 docker run -p 9420:8080 calcpad-server
 ```
 
