@@ -16,6 +16,7 @@ import { registerIncludeCompletionProvider } from './editor/include-completions'
 import { registerHoverProvider } from './editor/hover';
 import {
     registerDefinitionProvider,
+    registerIncludeLinkProvider,
     registerReferenceProvider,
     registerRenameProvider,
     type IncludeFileOpener,
@@ -63,7 +64,7 @@ function getEmptyPreviewHtml(theme: 'light' | 'dark'): string {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>CalcPad Preview</title>
+    <title>CalcpadCE Preview</title>
     <style>
         body { color: ${c.fg}; background: ${c.bg}; padding: 20px; font-family: var(--vscode-font-family, system-ui, sans-serif); }
         h3 { text-align: center; }
@@ -78,7 +79,7 @@ function getEmptyPreviewHtml(theme: 'light' | 'dark'): string {
 </head>
 <body>
     <h3>Empty Document</h3>
-    <p>Start typing CalcPad code to see the preview.</p>
+    <p>Start typing CalcpadCE code to see the preview.</p>
     <h4>Formatting Hotkeys</h4>
     <table>
         <tr><th>Bold</th><td>Ctrl+B</td></tr>
@@ -102,7 +103,7 @@ function getEmptyPreviewHtml(theme: 'light' | 'dark'): string {
 }
 
 function getSampleContent(): string {
-    return `'CalcPad Web Editor
+    return `'CalcpadCE Web Editor
 'Enter your calculations below
 
 a = 3
@@ -136,13 +137,13 @@ async function rgbaToPng(rgba: Uint8Array, width: number, height: number): Promi
 async function showServerBlockedDialog(details: string): Promise<void> {
     const { message: dialogMessage } = await import('@tauri-apps/plugin-dialog');
     const body =
-        "CalcPad's calculation server started but never became ready.\n\n"
+        "CalcpadCE's calculation server started but never became ready.\n\n"
         + 'The editor still works, but preview, linting, and PDF/Word export '
         + 'need the server. Choose Server → Restart Server to try again.\n\n'
         + `Details: ${details}`;
     try {
         await dialogMessage(body, {
-            title: 'CalcPad server unavailable',
+            title: 'CalcpadCE server unavailable',
             kind: 'warning',
             okLabel: 'OK',
         });
@@ -600,8 +601,13 @@ async function bootstrap(): Promise<void> {
         setTimeout(() => void refreshDefinitionsFor(group), 500);
     }
 
-    /** Create a group's editor in its App.vue container, wire it, seed a tab. */
-    async function createAndWireGroup(id: string, seedContent = ''): Promise<EditorGroup> {
+    /**
+     * Create a group's editor in its App.vue container, wire it, seed a tab.
+     * If `linkFrom` is given, the new group's first tab shares that group's
+     * active tab's model instead of starting blank — used by splitEditor() so
+     * a split defaults to a second, live-synced view of the current file.
+     */
+    async function createAndWireGroup(id: string, seedContent = '', linkFrom?: EditorGroup): Promise<EditorGroup> {
         appInstance.addGroup(id);
         await nextTick();
         const container = appInstance.getEditorContainer(id) as HTMLElement | null;
@@ -610,7 +616,9 @@ async function bootstrap(): Promise<void> {
         groups.set(id, group);
         wireGroupCommon(group);
         for (const hook of groupWireHooks) hook(group);
-        group.tabs.newUntitled(seedContent);
+        const linkModel = linkFrom?.tabs.activeId ? linkFrom.tabs.modelForTab(linkFrom.tabs.activeId) : null;
+        if (linkModel) group.tabs.openLinked(linkModel);
+        else group.tabs.newUntitled(seedContent);
         return group;
     }
 
@@ -642,7 +650,8 @@ async function bootstrap(): Promise<void> {
             activeGroup.editor.focus();
             return;
         }
-        const group = await createAndWireGroup(`g${++groupSeq}`, '');
+        const source = activeGroup;
+        const group = await createAndWireGroup(`g${++groupSeq}`, '', source);
         setActiveGroup(group);
         group.editor.focus();
     }
@@ -676,7 +685,7 @@ async function bootstrap(): Promise<void> {
     const openIncludeFile: IncludeFileOpener | undefined = tauriBridge
         ? async (rawFileName: string) => {
             try {
-                const absPath = tauriBridge.resolveIncludePath(rawFileName);
+                const absPath = await tauriBridge.resolveIncludePath(rawFileName);
                 let model = tabs.findModelByPath(absPath);
                 if (!model) {
                     const content = await tauriBridge.readFile(absPath);
@@ -707,7 +716,7 @@ async function bootstrap(): Promise<void> {
     const resolveIncludeUri: IncludeUriResolver | undefined = tauriBridge
         ? async (rawFileName: string): Promise<monaco.Uri | null> => {
             try {
-                const absPath = tauriBridge.resolveIncludePath(rawFileName);
+                const absPath = await tauriBridge.resolveIncludePath(rawFileName);
                 const uri = monaco.Uri.parse(`calcpad-include:${encodeURIComponent(absPath)}`);
                 includeUriToPath.set(uri.toString(), absPath);
                 return uri;
@@ -719,30 +728,45 @@ async function bootstrap(): Promise<void> {
 
     if (tauriBridge) {
         const bridge = tauriBridge;
+        // Shared by both openers below — the definition-provider's Ctrl+click/F12
+        // path (registerEditorOpener) and the always-visible link path
+        // (registerLinkOpener, for the underlined #include path text).
+        const openIncludeAt = async (
+            absPath: string,
+            selectionOrPosition?: monaco.IRange | monaco.IPosition,
+        ): Promise<void> => {
+            try {
+                const existing = tabs.findByPath(absPath);
+                if (existing) {
+                    tabs.activate(existing.id);
+                } else {
+                    tabs.openFile(absPath, await bridge.readFile(absPath));
+                }
+                if (selectionOrPosition) {
+                    const pos = 'startLineNumber' in selectionOrPosition
+                        ? { lineNumber: selectionOrPosition.startLineNumber, column: selectionOrPosition.startColumn }
+                        : { lineNumber: selectionOrPosition.lineNumber, column: selectionOrPosition.column };
+                    editor.setPosition(pos);
+                    editor.revealPositionInCenter(pos);
+                }
+            } catch (err) {
+                console.warn(`[references] failed to open include ${absPath}: ${err instanceof Error ? err.message : String(err)}`);
+            }
+        };
+
         monaco.editor.registerEditorOpener({
             openCodeEditor(_source, resource, selectionOrPosition) {
                 const absPath = includeUriToPath.get(resource.toString());
                 if (absPath === undefined) return false; // not an include jump — let Monaco handle it
-                return (async () => {
-                    try {
-                        const existing = tabs.findByPath(absPath);
-                        if (existing) {
-                            tabs.activate(existing.id);
-                        } else {
-                            tabs.openFile(absPath, await bridge.readFile(absPath));
-                        }
-                        if (selectionOrPosition) {
-                            const pos = 'startLineNumber' in selectionOrPosition
-                                ? { lineNumber: selectionOrPosition.startLineNumber, column: selectionOrPosition.startColumn }
-                                : { lineNumber: selectionOrPosition.lineNumber, column: selectionOrPosition.column };
-                            editor.setPosition(pos);
-                            editor.revealPositionInCenter(pos);
-                        }
-                    } catch (err) {
-                        console.warn(`[references] failed to open include ${absPath}: ${err instanceof Error ? err.message : String(err)}`);
-                    }
-                    return true;
-                })();
+                return openIncludeAt(absPath, selectionOrPosition).then(() => true);
+            },
+        });
+
+        monaco.editor.registerLinkOpener({
+            open(resource) {
+                const absPath = includeUriToPath.get(resource.toString());
+                if (absPath === undefined) return false; // not one of ours — let Monaco's default opener handle it
+                return openIncludeAt(absPath).then(() => true);
             },
         });
     }
@@ -760,6 +784,7 @@ async function bootstrap(): Promise<void> {
     }
     registerHoverProvider(editorBridge);
     registerDefinitionProvider(editorBridge, getFileContext, resolveIncludeUri);
+    registerIncludeLinkProvider(resolveIncludeUri);
     registerReferenceProvider(editorBridge, getFileContext, openIncludeFile);
     registerRenameProvider(editorBridge, getFileContext);
     registerFormatDocumentProvider(editorBridge);
@@ -885,7 +910,7 @@ async function bootstrap(): Promise<void> {
         }
     });
 
-    appInstance.appendOutput('info', `CalcPad Web started — server: ${serverUrl}`);
+    appInstance.appendOutput('info', `CalcpadCE Web started — server: ${serverUrl}`);
 
     // Flush any server-manager log lines buffered before the Output panel mounted,
     // then redirect future ones straight into the panel.
@@ -908,7 +933,7 @@ async function bootstrap(): Promise<void> {
         };
         serverManager.onCrashExhausted = (crashOutput: string) => {
             appInstance.appendOutput('error',
-                'CalcPad server crashed repeatedly — auto-restart disabled. ' +
+                'CalcpadCE server crashed repeatedly — auto-restart disabled. ' +
                 'Use Server → Restart Server to try again.');
             if (crashOutput) appInstance.appendOutput('error', crashOutput);
         };
@@ -950,6 +975,11 @@ async function bootstrap(): Promise<void> {
     };
     appInstance.onNewTabRequest = (groupId: string) => {
         groups.get(groupId)?.tabs.newUntitled();
+    };
+    // Preview right-click "Open Full HTML": raw HTML in a new unsaved tab in
+    // the same group, mirroring vscode-calcpad's "View Webview Source".
+    appInstance.onOpenFullHtmlRequest = (groupId: string, html: string) => {
+        groups.get(groupId)?.tabs.newUntitled(html, 'HTML Preview Source.html');
     };
     appInstance.onTabCloseOthersRequest = (groupId: string, id: string) => {
         const g = groups.get(groupId);
@@ -1136,7 +1166,7 @@ async function bootstrap(): Promise<void> {
             const choice = await appInstance.showConfirm({
                 title: 'Recover unsaved changes?',
                 message:
-                    `CalcPad found ${drafts.length} unsaved draft${drafts.length === 1 ? '' : 's'} `
+                    `CalcpadCE found ${drafts.length} unsaved draft${drafts.length === 1 ? '' : 's'} `
                     + `from a previous session:\n\n${summary}\n\n`
                     + `Restore them into new tabs? Choose "Don't Restore" to discard.`,
                 yesLabel: 'Restore',
@@ -1161,17 +1191,28 @@ async function bootstrap(): Promise<void> {
         void tauriBridge.getRecentFiles();
 
         /**
-         * Open `path` in a tab. If any group already holds that file, focuses
-         * it (matching VS Code's "go to existing tab"). Otherwise reads from
-         * disk into the active group.
+         * Open `path` in a tab. If the active group already holds that file,
+         * just focuses it. If another group has it open, opens a second,
+         * live-synced tab onto the same model in the active group instead of
+         * jumping away — this is what lets the same file be open in both
+         * split panes at once. Otherwise reads from disk into the active
+         * group.
          */
         async function loadFile(path: string): Promise<void> {
+            const inActive = tabs.findByPath(path);
+            if (inActive) {
+                tabs.activate(inActive.id);
+                return;
+            }
             for (const g of groups.values()) {
+                if (g === activeGroup) continue;
                 const existing = g.tabs.findByPath(path);
                 if (existing) {
-                    if (activeGroup !== g) setActiveGroup(g);
-                    g.tabs.activate(existing.id);
-                    return;
+                    const model = g.tabs.modelForTab(existing.id);
+                    if (model) {
+                        tabs.openLinked(model);
+                        return;
+                    }
                 }
             }
             try {
@@ -1236,14 +1277,16 @@ async function bootstrap(): Promise<void> {
 
         /**
          * Close a tab in a specific group, prompting if dirty. Returns true on
-         * close, false if the user cancelled the prompt.
+         * close, false if the user cancelled the prompt. Skips the prompt when
+         * another tab (in this or another group) still references the same
+         * model — the content isn't actually being discarded.
          */
         async function tryCloseTab(group: EditorGroup, id: string): Promise<boolean> {
             const target = group.tabs.all.find(t => t.id === id);
             if (!target) return true;
             // Activate the group + tab so the editor shows what's being asked about.
             if (activeGroup !== group) setActiveGroup(group);
-            if (target.dirty) {
+            if (target.dirty && group.tabs.isLastReference(id)) {
                 if (id !== group.tabs.activeId) group.tabs.activate(id);
                 const choice = await appInstance.showConfirm({
                     title: 'Unsaved changes',
@@ -1447,6 +1490,17 @@ async function bootstrap(): Promise<void> {
         async function runClipboardAction(
             action: 'cut' | 'copy' | 'paste' | 'select-all' | 'undo' | 'redo' | 'find' | 'replace',
         ): Promise<void> {
+            if (action === 'copy' || action === 'cut') {
+                // A real DOM selection (e.g. text picked inside the hover panel,
+                // parameter hints, or output) takes priority over the editor's
+                // own model selection, since Monaco renders the main text via
+                // its own selection overlay rather than native browser selection.
+                const domText = window.getSelection()?.toString() ?? '';
+                if (domText) {
+                    try { await tauriClipboard.writeText(domText); } catch { /* ignored */ }
+                    return;
+                }
+            }
             const editorHasFocus = editor.hasTextFocus();
             if (editorHasFocus) {
                 if (action === 'copy' || action === 'cut') {
@@ -1577,6 +1631,14 @@ async function bootstrap(): Promise<void> {
 
                 case 'export-pdf':
                     tauriBridge.handleMessage({ type: 'generatePdf' });
+                    break;
+
+                case 'export-html':
+                    tauriBridge.handleMessage({ type: 'saveSourceHtml' });
+                    break;
+
+                case 'export-docx':
+                    tauriBridge.handleMessage({ type: 'saveDocx' });
                     break;
 
                 case 'toggle-sidebar':

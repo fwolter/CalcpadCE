@@ -24,10 +24,10 @@ namespace Calcpad.Tests.HighlighterTests
                 .Where(d => d.Severity == LinterSeverity.Error)
                 .ToList();
 
-            // Line 6 (`x = = 2`) is inside a LintIgnore for CPD-3407 and CPD-3312.
-            // Line 8 (`x = 3`) has EndLintIgnore for CPD-3407 above it but CPD-3312
+            // Line 6 (`x = = 2`) is inside a LintIgnore for CPD-3404 and CPD-3312.
+            // Line 8 (`x = 3`) has EndLintIgnore for CPD-3404 above it but CPD-3312
             // remains suppressed, so any reassignment-style diagnostic on x is hidden.
-            // EndLintIgnore on line 9 names CPD-3412 which was never opened — a no-op.
+            // EndLintIgnore on line 9 names CPD-3408 which was never opened — a no-op.
             // Result: file should be error-free.
             Assert.True(
                 errors.Count == 0,
@@ -59,6 +59,30 @@ namespace Calcpad.Tests.HighlighterTests
             Assert.DoesNotContain("6.12345", html);
         }
 
+        [Fact]
+        public void LineContinuation_MetadataCommentParsesAsSingleJsonBlock()
+        {
+            // A metadata comment split across lines with an explicit " _" continuation
+            // must be recognized as one HtmlComment block with intact JSON. Regression:
+            // the opener line was typed as plain Comment and the continuation line's
+            // leading JSON quote was stripped as if it were a comment delimiter.
+            var source =
+                "'<!--{\"desc\":\"k\",\"paramTypes\":[\"value\"], _\n" +
+                "\"paramDesc\":[\"ndfdf\"]}-->";
+
+            var tokens = new CalcpadTokenizer().Tokenize(source);
+            var blocks = new HtmlCommentParser().Parse(tokens);
+
+            var block = Assert.Single(blocks);
+            Assert.Equal(HtmlCommentParseStatus.Success, block.Status);
+            Assert.True(block.Data.HasValue);
+
+            var data = block.Data.Value;
+            Assert.Equal("k", data.GetProperty("desc").GetString());
+            Assert.Equal("value", data.GetProperty("paramTypes")[0].GetString());
+            Assert.Equal("ndfdf", data.GetProperty("paramDesc")[0].GetString());
+        }
+
         private static void ApplyHtmlCommentSettings(string source, Settings settings)
         {
             var tokens = new CalcpadTokenizer().Tokenize(source);
@@ -81,6 +105,16 @@ namespace Calcpad.Tests.HighlighterTests
                 }
                 return;
             }
+        }
+
+        [Fact]
+        public void NonObjectJson_InHtmlComment_DoesNotThrow()
+        {
+            // '<!--[]--> parses as a valid JSON array, not an object. The region parser
+            // must not call TryGetProperty on it (which throws for non-objects).
+            var content = "'<!--[]-->'\nx = 1\n";
+            var regions = new Calcpad.Highlighter.Linter.LintIgnoreRegionParser().ExtractRegions(content);
+            Assert.Empty(regions);
         }
     }
 }

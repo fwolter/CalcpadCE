@@ -236,7 +236,8 @@ export abstract class BaseMessageBridge {
     protected async saveImageToImagesFolder(_img: PickedImage): Promise<string | null> { return null; }
     /** Prompt for a save location; return the src (relative to the document) to reference it by. */
     protected async saveImageToCustomPath(_img: PickedImage): Promise<string | null> { return null; }
-    protected abstract saveExportedFile(req: ExportRequest): Promise<void>;
+    /** Persist an export; returns the saved path when the platform has one, else null. */
+    protected abstract saveExportedFile(req: ExportRequest): Promise<string | null>;
     protected abstract buildFileContext(content: string): Promise<{ sourceFilePath?: string }>;
     protected abstract getVariablesOrigin(): string;
 
@@ -261,6 +262,8 @@ export abstract class BaseMessageBridge {
     protected buildSettingsResponseExtras(): Record<string, unknown> | Promise<Record<string, unknown>> { return {}; }
     protected async runPdfPreflight(): Promise<boolean> { return true; }
     protected async onPdfError(_err: unknown): Promise<void> { /* default no-op */ }
+    /** Called after a PDF is successfully written, with the saved path (platforms that have one). */
+    protected async onPdfSaved(_filePath: string): Promise<void> { /* default no-op */ }
     protected handlePlatformMessage(_message: any): boolean { return false; }
     protected onOpenLogsFolder(): void {
         console.warn('Open Logs Folder is only available in the desktop build — server logs live on the host running CalcPad.');
@@ -347,10 +350,47 @@ export abstract class BaseMessageBridge {
         this.postToVue({
             type: 'updateVariables',
             data: {
-                macros: response?.macros ?? [],
-                variables: response?.variables ?? [],
-                functions: response?.functions ?? [],
-                customUnits: response?.customUnits ?? [],
+                macros: (response?.macros ?? []).map(m => ({
+                    name: m.name,
+                    params: m.parameters.length > 0 ? m.parameters.join('; ') : undefined,
+                    definition: m.content.join('\n'),
+                    source: m.source,
+                    sourceFile: m.sourceFile,
+                    description: m.description,
+                    paramTypes: m.paramTypes,
+                    paramDescriptions: m.paramDescriptions,
+                    defaults: m.defaults,
+                })),
+                variables: (response?.variables ?? []).map(v => ({
+                    name: v.name,
+                    definition: v.expression,
+                    expression: v.expression,
+                    type: v.type,
+                    source: v.source,
+                    sourceFile: v.sourceFile,
+                    description: v.description,
+                })),
+                functions: (response?.functions ?? []).map(f => ({
+                    name: f.name,
+                    params: f.parameters.join('; '),
+                    definition: f.expression,
+                    expression: f.expression,
+                    returnType: f.returnType,
+                    source: f.source,
+                    sourceFile: f.sourceFile,
+                    description: f.description,
+                    paramTypes: f.paramTypes,
+                    paramDescriptions: f.paramDescriptions,
+                    defaults: f.defaults,
+                })),
+                customUnits: (response?.customUnits ?? []).map(u => ({
+                    name: u.name,
+                    definition: u.expression,
+                    expression: u.expression,
+                    source: u.source,
+                    sourceFile: u.sourceFile,
+                    description: u.description,
+                })),
             },
         });
     }
@@ -538,13 +578,14 @@ export abstract class BaseMessageBridge {
         try {
             const pdfBytes = await this.generatePdfBytes(content, apiSettings, sourceFilePath);
             if (!pdfBytes) return;
-            await this.saveExportedFile({
+            const savedPath = await this.saveExportedFile({
                 defaultName: 'calcpad-output.pdf',
                 data: pdfBytes,
                 mime: 'application/pdf',
                 extensions: ['pdf'],
                 dialogTitle: 'Export PDF',
             });
+            if (savedPath) await this.onPdfSaved(savedPath);
         } catch (err) {
             await this.onPdfError(err);
         }

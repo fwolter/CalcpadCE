@@ -49,7 +49,7 @@ namespace Calcpad.Highlighter.Linter.Validators.Stage3
                         var statementIdx = fullLine.AsSpan().IndexOf(statement.AsSpan(), StringComparison.Ordinal);
                         var col = statementIdx >= 0 ? statementIdx + hashIdx : hashIdx;
 
-                        result.AddError(blockInfo.LineNumber, col, col + 1, "CPD-3409",
+                        result.AddError(blockInfo.LineNumber, col, col + 1, "CPD-3405",
                             "'#' directives are not allowed inside command blocks. Use if(), $Repeat, etc. instead");
                     }
                 }
@@ -170,6 +170,7 @@ namespace Calcpad.Highlighter.Linter.Validators.Stage3
             foreach (var statement in blockInfo.Statements)
             {
                 CollectAssignedVariables(tokenizer, statement, localVariables, localAssignments);
+                CollectCommandLoopVariables(tokenizer, statement, localVariables);
             }
 
             // Second pass: validate each statement
@@ -246,6 +247,31 @@ namespace Calcpad.Highlighter.Linter.Validators.Stage3
                         }
                     }
                     break; // Done checking this statement
+                }
+            }
+        }
+
+        /// <summary>
+        /// Collects the loop variables an embedded command declares inside a block statement,
+        /// e.g. 'k' in "$Repeat{s = s + k @ k = 1 : n}". These are scoped to the command but,
+        /// like assigned locals, must not be flagged when used in the block body.
+        /// </summary>
+        private static void CollectCommandLoopVariables(
+            CalcpadTokenizer tokenizer, string statement, HashSet<string> localVariables)
+        {
+            var tokens = tokenizer.Tokenize(statement).Tokens;
+            bool afterAt = false;
+            foreach (var token in tokens)
+            {
+                if (token.Type == TokenType.Operator && token.Text == "@")
+                {
+                    afterAt = true;
+                    continue;
+                }
+                if (afterAt && (token.Type == TokenType.LocalVariable || token.Type == TokenType.Variable))
+                {
+                    localVariables.Add(token.Text);
+                    afterAt = false;
                 }
             }
         }

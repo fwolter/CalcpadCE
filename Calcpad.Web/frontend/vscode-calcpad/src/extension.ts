@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { CalcpadApiClient, DEFAULT_PDF_SETTINGS, parseConvertErrorHeader, findMetadataCommentBlock, serializeMetadataComment, computeMetadataBlock, buildDefinitionResolver } from 'calcpad-frontend';
+import { CalcpadApiClient, DEFAULT_PDF_SETTINGS, parseConvertErrorHeader, findMetadataCommentBlock, serializeMetadataComment, computeMetadataBlock, buildDefinitionResolver, extractBodyHtml } from 'calcpad-frontend';
 import type { PdfSettings as FrontendPdfSettings } from 'calcpad-frontend';
 import { CalcpadServerLinter } from './calcpadServerLinter';
 import { CalcpadSemanticTokensProvider, semanticTokensLegend } from './calcpadSemanticTokensProvider';
@@ -15,6 +15,7 @@ import { CalcpadDefinitionsService } from './calcpadDefinitionsService';
 import { AutoIndenter } from './autoIndenter';
 import { ImageInserter } from './imageInserter';
 import { CalcpadDefinitionProvider } from './calcpadDefinitionProvider';
+import { CalcpadIncludeLinkProvider } from './calcpadIncludeLinkProvider';
 import { CalcpadReferenceProvider } from './calcpadReferenceProvider';
 import { CalcpadRenameProvider } from './calcpadRenameProvider';
 import { CalcpadHoverProvider } from './calcpadHoverProvider';
@@ -146,7 +147,7 @@ function getPdfSettings(): FullPdfSettings {
 
     const fileName = activeEditor
         ? path.basename(activeEditor.document.fileName, path.extname(activeEditor.document.fileName))
-        : 'CalcPad Document';
+        : 'CalcpadCE Document';
 
     return {
         // User-configurable settings (defaults from shared module)
@@ -610,8 +611,8 @@ async function updatePreviewContent(panel: vscode.WebviewPanel, content: string,
     // Update panel title with current file name
     const activeEditor = vscode.window.activeTextEditor;
     if (activeEditor) {
-        const fileName = activeEditor.document.fileName.split('/').pop() || 'CalcPad';
-        panel.title = unwrapped ? `CalcPad Preview Unwrapped - ${fileName}` : `CalcPad Preview - ${fileName}`;
+        const fileName = activeEditor.document.fileName.split('/').pop() || 'CalcpadCE';
+        panel.title = unwrapped ? `CalcpadCE Preview Unwrapped - ${fileName}` : `CalcpadCE Preview - ${fileName}`;
     }
 
     // Check if content is empty
@@ -626,7 +627,7 @@ async function updatePreviewContent(panel: vscode.WebviewPanel, content: string,
             <html>
             <head>
                 <meta charset="UTF-8">
-                <title>CalcPad Preview${unwrapped ? ' Unwrapped' : ''}</title>
+                <title>CalcpadCE Preview${unwrapped ? ' Unwrapped' : ''}</title>
                 <style>
                     body { color: ${c.fg}; background: ${c.bg}; padding: 20px; font-family: var(--vscode-font-family); }
                     h3 { text-align: center; }
@@ -641,7 +642,7 @@ async function updatePreviewContent(panel: vscode.WebviewPanel, content: string,
             </head>
             <body>
                 <h3>Empty Document</h3>
-                <p>Start typing CalcPad code to see the preview.</p>
+                <p>Start typing CalcpadCE code to see the preview.</p>
                 <h4>Formatting Hotkeys</h4>
                 <table>
                     <tr><th>Bold</th><td>Ctrl+B</td></tr>
@@ -713,7 +714,7 @@ async function updatePreviewContent(panel: vscode.WebviewPanel, content: string,
 
         // Log to dedicated HTML output channel (without stealing focus)
         calcpadOutputHtmlChannel.clear();
-        calcpadOutputHtmlChannel.appendLine(apiResponse);
+        calcpadOutputHtmlChannel.appendLine(extractBodyHtml(apiResponse));
 
         outputChannel.appendLine(`HTML Length: ${apiResponse.length} characters`);
 
@@ -760,7 +761,7 @@ async function updatePreviewContent(panel: vscode.WebviewPanel, content: string,
             <html>
             <head>
                 <meta charset="UTF-8">
-                <title>CalcPad Preview Error</title>
+                <title>CalcpadCE Preview Error</title>
             </head>
             <body>
                 <div style="color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 4px; margin: 20px;">
@@ -795,7 +796,7 @@ async function generatePdfToFile(
     if (!apiBaseUrl) throw new Error('Server URL not configured');
 
     if (!documentContent || documentContent.trim().length === 0) {
-        throw new Error('Document is empty. Please add some CalcPad content first.');
+        throw new Error('Document is empty. Please add some CalcpadCE content first.');
     }
 
     const settings = await settingsManager.getApiSettings();
@@ -858,7 +859,7 @@ async function generatePdfToFile(
 async function runPdfExportCommand(): Promise<void> {
     const activeEditor = vscode.window.activeTextEditor;
     if (!activeEditor) {
-        vscode.window.showErrorMessage('No active CalcPad document found');
+        vscode.window.showErrorMessage('No active CalcpadCE document found');
         return;
     }
 
@@ -910,7 +911,7 @@ async function runPdfExportCommand(): Promise<void> {
 async function saveSourceHtml() {
     const activeEditor = vscode.window.activeTextEditor;
     if (!activeEditor) {
-        vscode.window.showErrorMessage('No active CalcPad document found');
+        vscode.window.showErrorMessage('No active CalcpadCE document found');
         return;
     }
     try {
@@ -977,7 +978,7 @@ async function saveSourceHtml() {
 async function saveDocx() {
     const activeEditor = vscode.window.activeTextEditor;
     if (!activeEditor) {
-        vscode.window.showErrorMessage('No active CalcPad document found');
+        vscode.window.showErrorMessage('No active CalcpadCE document found');
         return;
     }
     try {
@@ -1129,7 +1130,7 @@ async function showPreview(kind: 'regular' | 'unwrapped', scrollToLine?: number)
 
     const panel = vscode.window.createWebviewPanel(
         unwrapped ? 'htmlPreviewUnwrapped' : 'htmlPreview',
-        unwrapped ? 'CalcPad Preview Unwrapped' : 'CalcPad Preview',
+        unwrapped ? 'CalcpadCE Preview Unwrapped' : 'CalcpadCE Preview',
         unwrapped && wrappedPanel ? vscode.ViewColumn.Active : vscode.ViewColumn.Beside,
         {
             enableScripts: true,
@@ -1199,15 +1200,15 @@ export async function activate(context: vscode.ExtensionContext) {
         extensionContext = context;
         
         // Create output channel for debugging
-        outputChannel = vscode.window.createOutputChannel('CalcPad Extension');
+        outputChannel = vscode.window.createOutputChannel('CalcpadCE Extension');
         outputChannel.appendLine('CalcPad extension activated');
 
         // Create dedicated output channels for HTML
-        calcpadOutputHtmlChannel = vscode.window.createOutputChannel('Calcpad Output HTML');
-        calcpadWebviewConsoleChannel = vscode.window.createOutputChannel('Calcpad Webview Console');
+        calcpadOutputHtmlChannel = vscode.window.createOutputChannel('CalcpadCE Output HTML');
+        calcpadWebviewConsoleChannel = vscode.window.createOutputChannel('CalcpadCE Webview Console');
 
         // Create debug channel for linter/highlighter
-        const serverDebugChannel = vscode.window.createOutputChannel('CalcPad Server Debug');
+        const serverDebugChannel = vscode.window.createOutputChannel('CalcpadCE Server Debug');
 
         outputChannel.appendLine('Initializing settings manager...');
         const settingsManager = CalcpadSettingsManager.getInstance(context);
@@ -1267,7 +1268,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         serverDebugChannel.appendLine('[ServerManager] Server crashed 3 times — stopping auto-restart');
                         serverDebugChannel.appendLine('[ServerManager] Last crash output:\n' + crashOutput);
                         vscode.window.showErrorMessage(
-                            'CalcPad server crashed repeatedly (possibly due to your file). Use the refresh button to restart.',
+                            'CalcpadCE server crashed repeatedly (possibly due to your file). Use the refresh button to restart.',
                             'Show Debug Output'
                         ).then(choice => {
                             if (choice === 'Show Debug Output') {
@@ -1296,9 +1297,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
                         if (blocked) {
                             vscode.window.showErrorMessage(
-                                'CalcPad: Windows blocked Calcpad.Server.exe. ' +
+                                'CalcpadCE: Windows blocked Calcpad.Server.exe. ' +
                                 'Unblock the file (right-click → Properties → Unblock) ' +
-                                'then click the CalcPad refresh button to retry.',
+                                'then click the CalcpadCE refresh button to retry.',
                                 'Show Output'
                             ).then(choice => {
                                 if (choice === 'Show Output') {
@@ -1306,7 +1307,7 @@ export async function activate(context: vscode.ExtensionContext) {
                                 }
                             });
                         } else if (serverMode === 'local') {
-                            vscode.window.showErrorMessage(`CalcPad: Failed to start local server: ${message}`);
+                            vscode.window.showErrorMessage(`CalcpadCE: Failed to start local server: ${message}`);
                         } else {
                             // Auto mode. Falling back to remote only makes
                             // sense if the user actually configured a remote
@@ -1316,7 +1317,7 @@ export async function activate(context: vscode.ExtensionContext) {
                             const remoteUrl = settingsManager.getRemoteServerUrl();
                             if (!remoteUrl || remoteUrl.length === 0) {
                                 vscode.window.showErrorMessage(
-                                    `CalcPad: Bundled server failed to start and no remote URL is configured (${message}).`,
+                                    `CalcpadCE: Bundled server failed to start and no remote URL is configured (${message}).`,
                                     'Show Output',
                                 ).then(choice => {
                                     if (choice === 'Show Output') serverDebugChannel.show();
@@ -1331,7 +1332,7 @@ export async function activate(context: vscode.ExtensionContext) {
                     outputChannel.appendLine(`Dotnet resolution failed: ${message}`);
                 });
             } else if (serverMode === 'local') {
-                vscode.window.showErrorMessage('CalcPad: Server mode is "local" but CalcpadServer.dll was not found in the extension.');
+                vscode.window.showErrorMessage('CalcpadCE: Server mode is "local" but CalcpadServer.dll was not found in the extension.');
             } else {
                 outputChannel.appendLine('No bundled DLL found, using remote API');
             }
@@ -1394,6 +1395,10 @@ export async function activate(context: vscode.ExtensionContext) {
         outputChannel.appendLine('Initializing definition provider...');
         const definitionProviderDisposable = CalcpadDefinitionProvider.register(apiClient, outputChannel);
 
+        // Initialize #include link provider (always-underlined, clickable paths)
+        outputChannel.appendLine('Initializing include link provider...');
+        const includeLinkProviderDisposable = CalcpadIncludeLinkProvider.register(outputChannel);
+
         // Initialize reference provider (Find All References)
         outputChannel.appendLine('Initializing reference provider...');
         const referenceProviderDisposable = CalcpadReferenceProvider.register(apiClient, outputChannel);
@@ -1452,12 +1457,18 @@ export async function activate(context: vscode.ExtensionContext) {
                 variables: definitions.variables.map(v => ({
                     name: v.name,
                     definition: v.expression,
+                    expression: v.expression,
+                    type: v.type,
                     source: v.source as 'local' | 'include',
-                    sourceFile: v.sourceFile
+                    sourceFile: v.sourceFile,
+                    description: v.description
                 })),
                 functions: definitions.functions.map(f => ({
                     name: f.name,
                     params: f.parameters.join('; '),
+                    definition: f.expression,
+                    expression: f.expression,
+                    returnType: f.returnType,
                     source: f.source as 'local' | 'include',
                     sourceFile: f.sourceFile,
                     description: f.description,
@@ -1468,8 +1479,10 @@ export async function activate(context: vscode.ExtensionContext) {
                 customUnits: definitions.customUnits.map(u => ({
                     name: u.name,
                     definition: u.expression,
+                    expression: u.expression,
                     source: u.source as 'local' | 'include',
-                    sourceFile: u.sourceFile
+                    sourceFile: u.sourceFile,
+                    description: u.description
                 }))
             });
         } else {
@@ -1550,7 +1563,7 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 
     const disposable = vscode.commands.registerCommand('vscode-calcpad.activate', () => {
-        vscode.window.showInformationMessage('CalcPad activated!');
+        vscode.window.showInformationMessage('CalcpadCE activated!');
     });
 
     const previewCommand = vscode.commands.registerCommand('vscode-calcpad.previewHtml', () => {
@@ -1662,7 +1675,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const viewWebviewSourceCommand = vscode.commands.registerCommand('vscode-calcpad.viewWebviewSource', async () => {
         const inspectPanel = (unwrappedPanel && unwrappedPanel.active ? unwrappedPanel : wrappedPanel) ?? unwrappedPanel;
         if (!inspectPanel) {
-            vscode.window.showWarningMessage('No active CalcPad preview to inspect.');
+            vscode.window.showWarningMessage('No active CalcpadCE preview to inspect.');
             return;
         }
         webviewSourceHtml = inspectPanel.webview.html;
@@ -1690,7 +1703,7 @@ export async function activate(context: vscode.ExtensionContext) {
         outputChannel.appendLine('[Stop] Manual server stop triggered');
         if (!serverManager) {
             outputChannel.appendLine('[Stop] No serverManager available');
-            vscode.window.showInformationMessage('CalcPad server is not configured.');
+            vscode.window.showInformationMessage('CalcpadCE server is not configured.');
             return;
         }
         // Don't gate on `isRunning` — that flag only reflects whether *this*
@@ -1707,13 +1720,13 @@ export async function activate(context: vscode.ExtensionContext) {
             outputChannel.appendLine(`[Stop] Server stopped successfully (wasRunning=${wasRunning})`);
             vscode.window.showInformationMessage(
                 wasRunning
-                    ? 'CalcPad server stopped. Use the refresh button to restart.'
-                    : 'CalcPad server stopped via lock file. Use the refresh button to restart.',
+                    ? 'CalcpadCE server stopped. Use the refresh button to restart.'
+                    : 'CalcpadCE server stopped via lock file. Use the refresh button to restart.',
             );
         } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             outputChannel.appendLine(`[Stop] Server stop failed: ${msg}`);
-            vscode.window.showErrorMessage(`CalcPad: Failed to stop server: ${msg}`);
+            vscode.window.showErrorMessage(`CalcpadCE: Failed to stop server: ${msg}`);
         }
     });
 
@@ -1741,7 +1754,7 @@ export async function activate(context: vscode.ExtensionContext) {
                         'then click refresh again.'
                     );
                 } else {
-                    vscode.window.showErrorMessage(`CalcPad: Server restart failed: ${msg}`);
+                    vscode.window.showErrorMessage(`CalcpadCE: Server restart failed: ${msg}`);
                 }
                 return;
             }
@@ -1759,7 +1772,7 @@ export async function activate(context: vscode.ExtensionContext) {
                 } catch (err) {
                     const msg = err instanceof Error ? err.message : String(err);
                     outputChannel.appendLine(`[Refresh] Server restart failed: ${msg}`);
-                    vscode.window.showErrorMessage(`CalcPad: Server restart failed: ${msg}`);
+                    vscode.window.showErrorMessage(`CalcpadCE: Server restart failed: ${msg}`);
                     return;
                 }
             }
@@ -1781,11 +1794,11 @@ export async function activate(context: vscode.ExtensionContext) {
     const prettifyDocumentCommand = vscode.commands.registerCommand('vscode-calcpad.prettifyDocument', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
-            vscode.window.showInformationMessage('CalcPad: open a .cpd file to prettify.');
+            vscode.window.showInformationMessage('CalcpadCE: open a .cpd file to prettify.');
             return;
         }
         if (editor.document.languageId !== 'calcpad' && editor.document.languageId !== 'plaintext') {
-            vscode.window.showInformationMessage('CalcPad: prettify is only available for CalcPad documents.');
+            vscode.window.showInformationMessage('CalcpadCE: prettify is only available for CalcpadCE documents.');
             return;
         }
 
@@ -1798,7 +1811,7 @@ export async function activate(context: vscode.ExtensionContext) {
         try {
             const response = await apiClient.prettify(editor.document.getText(), indentUnit, trim);
             if (!response) {
-                vscode.window.showErrorMessage('CalcPad: prettify request failed (no response from server).');
+                vscode.window.showErrorMessage('CalcpadCE: prettify request failed (no response from server).');
                 return;
             }
             const fullRange = new vscode.Range(
@@ -1807,12 +1820,12 @@ export async function activate(context: vscode.ExtensionContext) {
             );
             const ok = await editor.edit(eb => eb.replace(fullRange, response.content));
             if (!ok) {
-                vscode.window.showErrorMessage('CalcPad: prettify edit was rejected by the editor.');
+                vscode.window.showErrorMessage('CalcpadCE: prettify edit was rejected by the editor.');
             }
         } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             outputChannel.appendLine('[Prettify] Error: ' + msg);
-            vscode.window.showErrorMessage('CalcPad: prettify failed — ' + msg);
+            vscode.window.showErrorMessage('CalcpadCE: prettify failed — ' + msg);
         }
     });
 
@@ -1930,6 +1943,7 @@ export async function activate(context: vscode.ExtensionContext) {
             completionProviderDisposable,
             includeCompletionDisposable,
             definitionProviderDisposable,
+            includeLinkProviderDisposable,
             referenceProviderDisposable,
             renameProviderDisposable,
             hoverProviderDisposable,
@@ -1947,7 +1961,7 @@ export async function activate(context: vscode.ExtensionContext) {
             outputChannel.appendLine(`FATAL ERROR during activation: ${error}`);
         }
         // Still try to show the error to user
-        vscode.window.showErrorMessage(`CalcPad extension failed to activate: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        vscode.window.showErrorMessage(`CalcpadCE extension failed to activate: ${error instanceof Error ? error.message : 'Unknown error'}`);
         throw error; // Re-throw to mark extension as failed
     }
 }
