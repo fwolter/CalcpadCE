@@ -6,13 +6,7 @@
         class="settings-search"
         placeholder="Search settings..."
       />
-      <button
-        class="toolbar-btn"
-        :title="allCollapsed ? 'Expand all' : 'Collapse all'"
-        @click="setAll(!allCollapsed)"
-      >
-        {{ allCollapsed ? 'Expand All' : 'Collapse All' }}
-      </button>
+      <CollapseAllButton :expand="allCollapsed" @click="setAll(!allCollapsed)" />
     </div>
 
     <div class="settings-container">
@@ -410,7 +404,6 @@
                 @input="updateDarkBackground"
               />
               <button
-                class="reset-inline-btn"
                 title="Reset to default (#1e1e1e)"
                 @click="resetDarkBackground"
               >
@@ -597,7 +590,6 @@
                 @keyup.enter="saveNamedConfig"
               />
               <button
-                class="reset-inline-btn"
                 :disabled="!newConfigName.trim()"
                 @click="saveNamedConfig"
               >
@@ -632,6 +624,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, reactive } from 'vue'
 import CalcpadSearchField from './CalcpadSearchField.vue'
+import CollapseAllButton from './CollapseAllButton.vue'
 import type { WritableComputedRef } from 'vue'
 import type { PdfSettings, Settings, ThemeInfo, VersionConfig } from '../types'
 import { DEFAULT_PDF_SETTINGS, DEFAULT_VERSION_CONFIG } from '../types'
@@ -1285,6 +1278,7 @@ watch(
 
 .settings-toolbar {
   display: flex;
+  align-items: center;
   gap: 6px;
   padding: 12px;
   /* Pinned above .settings-container, which scrolls under it. */
@@ -1295,21 +1289,6 @@ watch(
 
 .settings-search {
   flex: 1;
-}
-
-.toolbar-btn {
-  padding: 6px 10px;
-  background: var(--vscode-button-secondaryBackground);
-  border: 1px solid var(--vscode-button-border);
-  color: var(--vscode-button-secondaryForeground);
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: var(--calcpad-font-size-sm);
-  white-space: nowrap;
-}
-
-.toolbar-btn:hover {
-  background: var(--vscode-button-secondaryHoverBackground);
 }
 
 .settings-container {
@@ -1396,21 +1375,6 @@ watch(
   flex: 1;
 }
 
-.reset-inline-btn {
-  padding: 6px 10px;
-  background: var(--vscode-button-secondaryBackground);
-  border: 1px solid var(--vscode-button-border);
-  color: var(--vscode-button-secondaryForeground);
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: var(--calcpad-font-size-sm);
-  white-space: nowrap;
-}
-
-.reset-inline-btn:hover {
-  background: var(--vscode-button-secondaryHoverBackground);
-}
-
 .setting-info {
   margin-left: 4px;
   font-size: var(--calcpad-font-size-sm);
@@ -1430,11 +1394,6 @@ watch(
   color: var(--vscode-errorForeground, #f48771);
 }
 
-.reset-inline-btn[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .settings-actions {
   display: flex;
   gap: 8px;
@@ -1448,33 +1407,11 @@ watch(
 
 .reset-button {
   width: 100%;
-  padding: 8px;
-  background: var(--vscode-button-secondaryBackground);
-  border: 1px solid var(--vscode-button-border);
-  color: var(--vscode-button-secondaryForeground);
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: var(--calcpad-font-size-md);
   margin-top: 16px;
-}
-
-.reset-button:hover {
-  background: var(--vscode-button-secondaryHoverBackground);
 }
 
 .diagnostics-button {
   width: 100%;
-  padding: 6px 10px;
-  background: var(--vscode-button-secondaryBackground);
-  border: 1px solid var(--vscode-button-border);
-  color: var(--vscode-button-secondaryForeground);
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: var(--calcpad-font-size-md);
-}
-
-.diagnostics-button:hover {
-  background: var(--vscode-button-secondaryHoverBackground);
 }
 
 .app-version {

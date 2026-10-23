@@ -11,7 +11,7 @@
     <button
       v-if="model"
       type="button"
-      class="search-clear-btn"
+      class="icon search-clear-btn"
       title="Clear search"
       @click="clearSearch"
     >
@@ -72,21 +72,6 @@ const clearSearch = () => {
   top: 50%;
   right: 6px;
   transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  border-radius: 3px;
-  background: transparent;
-  color: var(--vscode-input-foreground);
-  cursor: pointer;
-}
-
-.search-clear-btn:hover {
-  background: var(--vscode-list-hoverBackground);
 }
 
 .search-clear-btn:focus-visible {
