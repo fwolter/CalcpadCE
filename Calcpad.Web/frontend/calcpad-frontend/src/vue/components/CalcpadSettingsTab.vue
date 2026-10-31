@@ -826,7 +826,7 @@ const localSettings = ref<Settings>({ ...props.settings })
 // #settings-directive counterpart and so stay hardcoded, to keep the visible
 // field order unchanged.
 const MATH_KEYS = [
-  'decimals', 'degrees', 'complex', 'substitute', 'formatEquations',
+  'decimals', 'degrees', 'returnAngleUnits', 'complex', 'substitute', 'formatEquations',
   'zeroSmallMatrixElements', 'showHiddenOutput', 'maxOutputCount', 'precision', 'tol',
 ].map(k => specForKey(METADATA_SETTINGS_KEYS, k)!)
 const PLOT_KEYS_A = ['adaptivePlot'].map(k => specForKey(METADATA_SETTINGS_KEYS, k)!)
@@ -915,6 +915,7 @@ const SECTION_META: Record<string, { title: string; rows: Record<string, string>
     rows: {
       decimals: 'decimals precision digits',
       degrees: 'angle units degrees radians gradians',
+      returnAngleUnits: 'return angle units inverse trig asin acos atan atan2 phase degrees radians',
       complex: 'complex numbers imaginary',
       substitute: 'substitute variables',
       formatEquations: 'format equations professional inline',
