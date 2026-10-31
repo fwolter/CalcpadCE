@@ -9,6 +9,7 @@ In VS Code, do not use VS Code's own settings editor.
 | ------- | ------ | ------- |
 | **Decimals** | 0–15 | Decimal places shown in results. |
 | **Angle Units** | Degrees / Radians / Gradians | Trigonometric angle setting. |
+| **Return Angle Units** | on/off | Inverse trig functions (`asin`, `atan2`, `phase`, etc.) return results with the current angle unit attached. Off returns unitless numbers. A document can override it with `ReturnAngleUnits = 0`. |
 | **Complex Numbers** | on/off | Enable complex-number arithmetic. |
 | **Substitute Variables** | on/off | Substitute variable values into the output. |
 | **Format Equations** | on/off | *Professional* (on) renders equations in stacked math form; *Inline* (off) renders them on a single line. |
