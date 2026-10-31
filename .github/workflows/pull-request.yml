@@ -32,12 +32,6 @@ jobs:
     with:
       version: ${{ needs.determine-version.outputs.version }}
 
-  build-desktop-linux:
-    needs: determine-version
-    uses: ./.github/workflows/build-desktop-linux.yml
-    with:
-      version: ${{ needs.determine-version.outputs.version }}
-
   test:
     needs: determine-version
     uses: ./.github/workflows/run-tests.yml
